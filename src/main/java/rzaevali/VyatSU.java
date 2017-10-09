@@ -1,5 +1,7 @@
 package rzaevali;
 
+import rzaevali.utils.PDFUtils;
+
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,8 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-//import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
 
 @Path("vyatsu")
 public class VyatSU {
@@ -62,8 +62,15 @@ public class VyatSU {
     @GET
     @Path("/schedule/{group_id}/{season}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getSchedule(@PathParam("group_id") String groupId, @PathParam("season") String season) {
-
-        return groupId + season;
+    public Response getSchedule(
+            @PathParam("group_id") String groupId,
+            @PathParam("season") String season
+    ) {
+        try {
+            String schedule = PDFUtils.parseSchedule(groupId);
+            return Response.ok(schedule).encoding("utf-8").build();
+        } catch (Exception e) {
+            return Response.status(500, "{error: 'Internal server error'}").build();
+        }
     }
 }
