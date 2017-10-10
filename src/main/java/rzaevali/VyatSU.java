@@ -70,7 +70,7 @@ public class VyatSU {
             String schedule = PDFUtils.parseSchedule(groupId);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (Exception e) {
-            return Response.status(500, "{error: 'Internal server error'}").build();
+            return Response.status(500).entity("{\"error\": \"Internal server error\"}").build();
         }
     }
 }
