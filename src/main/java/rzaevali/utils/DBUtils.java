@@ -16,7 +16,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import rzaevali.exceptions.DocNotFoundException;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DBUtils {
 
@@ -27,6 +30,13 @@ public class DBUtils {
         public DateRange(String first, String second) {
             this.first = first;
             this.second = second;
+        }
+
+        public List<String> toList() {
+            List<String> list = new ArrayList<>();
+            list.add(first);
+            list.add(second);
+            return list;
         }
 
         public static List<String> toList(LocalDate first, LocalDate second) {
@@ -41,11 +51,11 @@ public class DBUtils {
                     second.getMonthValue(),
                     second.getYear());
 
-            List<String> ret = new ArrayList<>();
-            ret.add(firstS);
-            ret.add(secondS);
+            List<String> list = new ArrayList<>();
+            list.add(firstS);
+            list.add(secondS);
 
-            return ret;
+            return list;
         }
 
         @Override
@@ -75,8 +85,13 @@ public class DBUtils {
     private static final String SEASON_AUTUMN = "autumn";
     private static final String SEASON_SPRING = "spring";
 
-    public static DateRange getDateRange(String groupId, String season) throws Exception {
-        checkArgument(season.equals(SEASON_SPRING) || season.equals(SEASON_AUTUMN));
+    public static DateRange getDateRange(String groupId, String season) throws DocNotFoundException {
+        checkNotNull(groupId, "groupId must not be null");
+        checkNotNull(season, "season must not be null");
+        checkArgument(
+            season.equals(SEASON_SPRING) || 
+            season.equals(SEASON_AUTUMN)
+        );
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
         MongoClient client = new MongoClient(uri);
@@ -93,7 +108,7 @@ public class DBUtils {
             List<String> range = (List<String>) res.get("range");
             return new DateRange(range.get(0), range.get(1));
         } else {
-            throw new Exception(String.format("Now entry with such groupId: %s", groupId));
+            throw new DocNotFoundException(String.format("Now entry with such groupId: %s", groupId));
         }
     }
 
