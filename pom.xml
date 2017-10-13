@@ -61,7 +61,7 @@
         <dependency>
             <groupId>technology.tabula</groupId>
             <artifactId>tabula</artifactId>
-            <version>0.8.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
