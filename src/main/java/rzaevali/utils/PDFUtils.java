@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import rzaevali.exceptions.DocNotFoundException;
 
@@ -40,7 +41,7 @@ public class PDFUtils {
         List<String> rows = parsePDFFile(url);
         List<List<String>> days = new ArrayList<>();
         for (int i = 0; i < 14; ++i) {
-            days.add(new ArrayList<String>());
+            days.add(new ArrayList<>());
         }
 
         for (int i = 2; i < rows.size(); i += 7) {
@@ -62,36 +63,25 @@ public class PDFUtils {
     }
 
     private static List<String> parsePDFFile(URL url) throws IOException {
-        PDDocument pdfDocument = PDDocument.load(url.openStream());
-        PageIterator pageIterator = new ObjectExtractor(pdfDocument).extract();
-        ExtractionAlgorithm algorithm = new SpreadsheetExtractionAlgorithm();
-        List<Table> tables = new ArrayList<>();
-        List<String> rows = new ArrayList<>();
+        try (PDDocument pdfDocument = PDDocument.load(url.openStream())) {
+            PageIterator pageIterator = new ObjectExtractor(pdfDocument).extract();
+            ExtractionAlgorithm algorithm = new SpreadsheetExtractionAlgorithm();
+            List<Table> tables = new ArrayList<>();
 
-        while (pageIterator.hasNext()) {
-            Page page = pageIterator.next();
-            tables.addAll(algorithm.extract(page));
-        }
-
-
-        for (Table table : tables) {
-            List<List<RectangularTextContainer>> currentRows = table.getRows();
-            for (List<RectangularTextContainer> row : currentRows) {
-                StringBuilder stringBuilder = new StringBuilder("");
-                for (RectangularTextContainer column : row) {
-                    String text = column.getText();
-                    if (text.equals("")) {
-                        continue;
-                    }
-                    stringBuilder.append(text);
-                    stringBuilder.append(' ');
-                }
-
-                rows.add(stringBuilder.toString().replaceFirst("\\d{2}:\\d{2}-\\d{2}:\\d{2}\\s*", ""));
+            while (pageIterator.hasNext()) {
+                Page page = pageIterator.next();
+                tables.addAll(algorithm.extract(page));
             }
-        }
 
-        return rows;
+            return tables.stream()
+                    .flatMap(table -> table.getRows().stream())
+                    .map(row -> row.stream()
+                            .map(RectangularTextContainer::getText)
+                            .filter(text -> !text.equals(""))
+                            .collect(Collectors.joining(" ")))
+                    .map(text -> text.replaceFirst("\\d{2}:\\d{2}-\\d{2}:\\d{2}\\s*", ""))
+                    .collect(Collectors.toList());
+        }
     }
 
 }
