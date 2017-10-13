@@ -2,6 +2,7 @@ package rzaevali.utils;
 
 import com.google.gson.GsonBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import rzaevali.utils.DBUtils.DateRange;
 import technology.tabula.*;
 import technology.tabula.extractors.ExtractionAlgorithm;
 import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
@@ -16,18 +17,23 @@ import rzaevali.exceptions.DocNotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static rzaevali.utils.DBUtils.getSeasonKey;
 
 public class PDFUtils {
-    private static final String BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_1_%s_%s.pdf";
+
+    private static final String BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_%s_%s_%s.pdf";
 
     private static class Schedule {
+
         private List<List<List<String>>> weeks;
+
         private String group;
 
         Schedule(List<List<List<String>>> weeks, String group) {
             this.weeks = weeks;
             this.group = group;
         }
+
     }
 
     public static String parseSchedule(String groupId, String season) throws IOException,
@@ -35,9 +41,9 @@ public class PDFUtils {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
 
-        DBUtils.DateRange range = DBUtils.getDateRange(groupId, season);
+        DateRange range = DBUtils.getDateRange(groupId, season);
 
-        URL url = new URL(String.format(BASE_URL, groupId, range.getFirst(), range.getSecond()));
+        URL url = new URL(String.format(BASE_URL, groupId, getSeasonKey(season), range.getFirst(), range.getSecond()));
         List<String> rows = parsePDFFile(url);
         List<List<String>> days = new ArrayList<>();
         for (int i = 0; i < 14; ++i) {
@@ -56,10 +62,11 @@ public class PDFUtils {
         weeks.add(days.subList(0, 6));
         weeks.add(days.subList(7, 13));
 
-        return new GsonBuilder().
-                setPrettyPrinting().
-                create().
-                toJson(new Schedule(weeks, group));
+        if (System.getenv("DEBUG") != null) {
+            return JsonUtils.PRETTY_JSON.toJson(new Schedule(weeks, group));
+        } else {
+            return JsonUtils.STANDARD_JSON.toJson(new Schedule(weeks, group));
+        }
     }
 
     private static List<String> parsePDFFile(URL url) throws IOException {

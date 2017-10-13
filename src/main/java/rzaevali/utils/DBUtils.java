@@ -149,6 +149,16 @@ public class DBUtils {
         }
     }
 
+    public static String getSeasonKey(String season) {
+        checkNotNull(season, "season must not be null");
+        checkArgument(
+                season.equals(SEASON_SPRING) ||
+                        season.equals(SEASON_AUTUMN)
+        );
+
+        return season.equals(SEASON_AUTUMN) ? "1" : "2";
+    }
+
     private static List<String> getMaxRange(HashMap<String, Map.Entry<LocalDate, LocalDate>> map, String groupId) {
         Map.Entry<LocalDate, LocalDate> e = map.get(groupId);
 
@@ -156,7 +166,7 @@ public class DBUtils {
     }
 
     private static HashMap<String, Map.Entry<LocalDate, LocalDate>> getRangesFromSite(String season) throws IOException {
-        String seasonKey = season.equals(SEASON_AUTUMN) ? "1" : "2";
+        String seasonKey = getSeasonKey(season);
         URL url = new URL(GROUPS_LIST_URL);
         String html = CharStreams.toString(new InputStreamReader(url.openStream()));
         Pattern pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey));
