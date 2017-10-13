@@ -67,9 +67,10 @@ public class VyatSU {
             @PathParam("season") String season
     ) {
         try {
-            String schedule = PDFUtils.parseSchedule(groupId);
+            String schedule = PDFUtils.parseSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (Exception e) {
+            e.printStackTrace();
             return Response.status(500).entity("{\"error\": \"Internal server error\"}").build();
         }
     }
