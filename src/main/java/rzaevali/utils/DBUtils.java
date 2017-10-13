@@ -94,21 +94,22 @@ public class DBUtils {
         );
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
-        MongoClient client = new MongoClient(uri);
-        MongoDatabase db = client.getDatabase(uri.getDatabase());
 
-        MongoCollection<Document> collection = db.getCollection(DATE_RANGES_COLLECTION);
+        try (MongoClient client = new MongoClient(uri)) {
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> collection = db.getCollection(DATE_RANGES_COLLECTION);
 
-        BasicDBObject query = new BasicDBObject();
-        query.put("groupId", groupId);
-        query.put("season", season);
+            BasicDBObject query = new BasicDBObject();
+            query.put("groupId", groupId);
+            query.put("season", season);
 
-        Document res = collection.find(query).first();
-        if (res != null) {
-            List<String> range = (List<String>) res.get("range");
-            return new DateRange(range.get(0), range.get(1));
-        } else {
-            throw new DocNotFoundException(String.format("Now entry with such groupId: %s", groupId));
+            Document res = collection.find(query).first();
+            if (res != null) {
+                List<String> range = (List<String>) res.get("range");
+                return new DateRange(range.get(0), range.get(1));
+            } else {
+                throw new DocNotFoundException(String.format("No doc with such groupId: %s", groupId));
+            }
         }
     }
 
@@ -121,7 +122,7 @@ public class DBUtils {
             MongoDatabase db = client.getDatabase(uri.getDatabase());
             MongoCollection<Document> collection = db.getCollection(DATE_RANGES_COLLECTION);
 
-            HashMap<String, Map<LocalDate, LocalDate>> dateRanges = getRangesFromSite(season);
+            HashMap<String, Map.Entry<LocalDate, LocalDate>> dateRanges = getRangesFromSite(season);
 
             for (String groupId : dateRanges.keySet()) {
 
@@ -149,30 +150,31 @@ public class DBUtils {
         }
     }
 
-    private static List<String> getMaxRange(HashMap<String, Map<LocalDate, LocalDate>> map, String groupId) {
-        Map.Entry<LocalDate, LocalDate> e = map.get(groupId).entrySet().iterator().next();
+    private static List<String> getMaxRange(HashMap<String, Map.Entry<LocalDate, LocalDate>> map, String groupId) {
+        Map.Entry<LocalDate, LocalDate> e = map.get(groupId);
 
         return DateRange.toList(e.getKey(), e.getValue());
     }
 
-    private static HashMap<String, Map<LocalDate, LocalDate>> getRangesFromSite(String season) throws IOException {
+    private static HashMap<String, Map.Entry<LocalDate, LocalDate>> getRangesFromSite(String season) throws IOException {
         String seasonKey = season.equals(SEASON_AUTUMN) ? "1" : "2";
         URL url = new URL(GROUPS_LIST_URL);
         String html = CharStreams.toString(new InputStreamReader(url.openStream()));
         Pattern pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey));
         Matcher matcher = pattern.matcher(html);
 
-        HashMap<String, Map<LocalDate, LocalDate>> dateRanges = new HashMap<>();
+        HashMap<String, Map.Entry<LocalDate, LocalDate>> dateRanges = new HashMap<>();
         while (matcher.find()) {
             String groupId = matcher.group(1);
             LocalDate first = parseDate(matcher.group(2));
             LocalDate second = parseDate(matcher.group(3));
 
-            if (dateRanges.get(groupId) == null) {
-                dateRanges.put(groupId, new TreeMap<>(new Cmp()));
-            }
+            Map.Entry<LocalDate, LocalDate> newRange = new AbstractMap.SimpleEntry<>(first, second);
+            Map.Entry<LocalDate, LocalDate> oldRange = dateRanges.get(groupId);
 
-            dateRanges.get(groupId).put(first, second);
+            if (oldRange == null || oldRange.getKey().compareTo(newRange.getKey()) < 0) {
+                dateRanges.put(groupId, newRange);
+            }
         }
 
         return dateRanges;
