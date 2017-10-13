@@ -1,5 +1,6 @@
 package rzaevali;
 
+import rzaevali.exceptions.DocNotFoundException;
 import rzaevali.utils.PDFUtils;
 
 import javax.servlet.ServletContext;
@@ -12,6 +13,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import static rzaevali.utils.JsonUtils.errorMessage;
 
 @Path("vyatsu")
 public class VyatSU {
@@ -69,9 +73,13 @@ public class VyatSU {
         try {
             String schedule = PDFUtils.parseSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
+        } catch (DocNotFoundException e) {
+            return Response.status(422).entity(errorMessage("Invalid param season or group_id")).build();
+        } catch (IOException e) {
+            return Response.status(422).entity(errorMessage("Error while parsing pdf file")).build();
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(500).entity("{\"error\": \"Internal server error\"}").build();
+            return Response.status(500).entity(errorMessage("Internal server error")).build();
         }
     }
 }

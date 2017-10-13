@@ -1,8 +1,8 @@
 package rzaevali.utils;
 
-import com.google.gson.GsonBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import rzaevali.utils.DBUtils.DateRange;
+import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.utils.DBUtils.*;
 import technology.tabula.*;
 import technology.tabula.extractors.ExtractionAlgorithm;
 import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
@@ -13,11 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import rzaevali.exceptions.DocNotFoundException;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkArgument;
-import static rzaevali.utils.DBUtils.getSeasonKey;
+import static rzaevali.utils.DBUtils.*;
 
 public class PDFUtils {
 
@@ -40,6 +37,10 @@ public class PDFUtils {
                                                                              DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
+
+        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
+            throw new DocNotFoundException("Invalid param season");
+        }
 
         DateRange range = DBUtils.getDateRange(groupId, season);
 

@@ -80,9 +80,9 @@ public class DBUtils {
 
     private static final String DATE_RANGES_COLLECTION = "schedule_ranges";
 
-    private static final String SEASON_AUTUMN = "autumn";
+    public static final String SEASON_AUTUMN = "autumn";
 
-    private static final String SEASON_SPRING = "spring";
+    public static final String SEASON_SPRING = "spring";
 
     static DateRange getDateRange(String groupId, String season) throws DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
