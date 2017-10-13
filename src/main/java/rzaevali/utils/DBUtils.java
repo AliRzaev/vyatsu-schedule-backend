@@ -24,10 +24,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DBUtils {
 
     public static class DateRange {
+
         private String first;
+
         private String second;
 
-        public DateRange(String first, String second) {
+        DateRange(String first, String second) {
             this.first = first;
             this.second = second;
         }
@@ -39,7 +41,7 @@ public class DBUtils {
             return list;
         }
 
-        public static List<String> toList(LocalDate first, LocalDate second) {
+        static List<String> toList(LocalDate first, LocalDate second) {
             String firstS = String.format(
                     "%02d%02d%04d",
                     first.getDayOfMonth(),
@@ -63,34 +65,31 @@ public class DBUtils {
             return String.format("[%s, %s]", first, second);
         }
 
-        public String getFirst() {
+        String getFirst() {
             return first;
         }
 
-        public String getSecond() {
+        String getSecond() {
             return second;
         }
+
     }
 
-    static class Cmp implements Comparator<LocalDate> {
+    private static final String GROUPS_LIST_URL =
+            "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
 
-        @Override
-        public int compare(LocalDate date, LocalDate t1) {
-            return t1.compareTo(date);
-        }
-    }
-
-    private static final String GROUPS_LIST_URL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
     private static final String DATE_RANGES_COLLECTION = "schedule_ranges";
+
     private static final String SEASON_AUTUMN = "autumn";
+
     private static final String SEASON_SPRING = "spring";
 
-    public static DateRange getDateRange(String groupId, String season) throws DocNotFoundException {
+    static DateRange getDateRange(String groupId, String season) throws DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
         checkArgument(
-            season.equals(SEASON_SPRING) || 
-            season.equals(SEASON_AUTUMN)
+                season.equals(SEASON_SPRING) ||
+                        season.equals(SEASON_AUTUMN)
         );
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
