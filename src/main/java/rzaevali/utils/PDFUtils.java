@@ -26,9 +26,12 @@ public class PDFUtils {
 
         private String group;
 
-        Schedule(List<List<List<String>>> weeks, String group) {
+        private List<String> date_range;
+
+        Schedule(List<List<List<String>>> weeks, String group, List<String> date_range) {
             this.weeks = weeks;
             this.group = group;
+            this.date_range = date_range;
         }
 
     }
@@ -64,9 +67,9 @@ public class PDFUtils {
         weeks.add(days.subList(7, 13));
 
         if (System.getenv("DEBUG") != null) {
-            return JsonUtils.PRETTY_JSON.toJson(new Schedule(weeks, group));
+            return JsonUtils.PRETTY_JSON.toJson(new Schedule(weeks, group, range.toList()));
         } else {
-            return JsonUtils.STANDARD_JSON.toJson(new Schedule(weeks, group));
+            return JsonUtils.STANDARD_JSON.toJson(new Schedule(weeks, group, range.toList()));
         }
     }
 
