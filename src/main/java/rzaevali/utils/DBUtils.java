@@ -1,5 +1,6 @@
 package rzaevali.utils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
@@ -58,6 +59,10 @@ public class DBUtils {
             list.add(secondS);
 
             return list;
+        }
+
+        List<LocalDate> toLocalDate() {
+            return ImmutableList.of(parseDate(first), parseDate(second));
         }
 
         @Override
@@ -189,7 +194,7 @@ public class DBUtils {
         return dateRanges;
     }
 
-    private static LocalDate parseDate(String date) {
+    static LocalDate parseDate(String date) {
         int day = Integer.parseInt(date.substring(0, 2));
         int month = Integer.parseInt(date.substring(2, 4));
         int year = Integer.parseInt(date.substring(4));
