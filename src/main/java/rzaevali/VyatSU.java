@@ -1,7 +1,7 @@
 package rzaevali;
 
 import rzaevali.exceptions.DocNotFoundException;
-import rzaevali.utils.PDFUtils;
+import rzaevali.utils.ScheduleUtils;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -71,7 +71,7 @@ public class VyatSU {
             @PathParam("season") String season
     ) {
         try {
-            String schedule = PDFUtils.parseSchedule(groupId, season);
+            String schedule = ScheduleUtils.getSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (DocNotFoundException e) {
             return Response.status(422).entity(errorMessage("Invalid param season or group_id")).build();

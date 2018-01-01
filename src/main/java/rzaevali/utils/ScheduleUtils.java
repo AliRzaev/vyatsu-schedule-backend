@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static rzaevali.utils.DBUtils.*;
 
-public class PDFUtils {
+public class ScheduleUtils {
 
     private static final String BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_%s_%s_%s.pdf";
 
@@ -39,7 +39,7 @@ public class PDFUtils {
         }
     }
 
-    public static String parseSchedule(String groupId, String season) throws IOException,
+    public static String getSchedule(String groupId, String season) throws IOException,
                                                                              DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
