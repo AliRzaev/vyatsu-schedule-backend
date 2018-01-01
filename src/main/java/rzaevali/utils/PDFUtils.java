@@ -34,6 +34,9 @@ public class PDFUtils {
             this.date_range = date_range;
         }
 
+        public List<String> getDateRange() {
+            return date_range;
+        }
     }
 
     public static String parseSchedule(String groupId, String season) throws IOException,
