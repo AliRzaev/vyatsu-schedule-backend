@@ -9,6 +9,7 @@ import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ public class ScheduleUtils {
 
     private static final String BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_%s_%s_%s.pdf";
 
-    private static class Schedule {
+    static class Schedule {
 
         private List<List<List<String>>> weeks;
 
@@ -34,7 +35,7 @@ public class ScheduleUtils {
             this.date_range = date_range;
         }
 
-        public List<String> getDateRange() {
+        List<String> getDateRange() {
             return date_range;
         }
     }
@@ -48,8 +49,39 @@ public class ScheduleUtils {
             throw new DocNotFoundException("Invalid param season");
         }
 
+        Schedule cachedSchedule = ScheduleCache.getInstance().getSchedule(groupId, season);
+
         DateRange range = DBUtils.getDateRange(groupId, season);
 
+        if (cachedSchedule == null) {
+            Schedule schedule = getScheduleFromSite(groupId, season, range);
+            ScheduleCache.getInstance().updateSchedule(groupId, season, schedule);
+
+            return dumpSchedule(schedule);
+        } else {
+            LocalDate date = parseDate(range.getFirst());
+            LocalDate cachedDate = parseDate(cachedSchedule.getDateRange().get(0));
+
+            if (date.compareTo(cachedDate) > 0) {
+                Schedule schedule = getScheduleFromSite(groupId, season, range);
+                ScheduleCache.getInstance().updateSchedule(groupId, season, schedule);
+
+                return dumpSchedule(schedule);
+            } else {
+                return dumpSchedule(cachedSchedule);
+            }
+        }
+    }
+
+    private static String dumpSchedule(Schedule schedule) {
+        if (System.getenv("DEBUG") != null) {
+            return JsonUtils.PRETTY_JSON.toJson(schedule);
+        } else {
+            return JsonUtils.STANDARD_JSON.toJson(schedule);
+        }
+    }
+
+    private static Schedule getScheduleFromSite(String groupId, String season, DateRange range) throws IOException {
         URL url = new URL(String.format(BASE_URL, groupId, getSeasonKey(season), range.getFirst(), range.getSecond()));
         List<String> rows = parsePDFFile(url);
         List<List<String>> days = new ArrayList<>();
@@ -69,11 +101,7 @@ public class ScheduleUtils {
         weeks.add(days.subList(0, 6));
         weeks.add(days.subList(7, 13));
 
-        if (System.getenv("DEBUG") != null) {
-            return JsonUtils.PRETTY_JSON.toJson(new Schedule(weeks, group, range.toList()));
-        } else {
-            return JsonUtils.STANDARD_JSON.toJson(new Schedule(weeks, group, range.toList()));
-        }
+        return new Schedule(weeks, group, range.toList());
     }
 
     private static List<String> parsePDFFile(URL url) throws IOException {
