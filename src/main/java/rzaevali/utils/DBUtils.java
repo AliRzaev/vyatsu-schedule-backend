@@ -36,10 +36,7 @@ public class DBUtils {
         }
 
         public List<String> toList() {
-            List<String> list = new ArrayList<>();
-            list.add(first);
-            list.add(second);
-            return list;
+            return ImmutableList.of(first, second);
         }
 
         static List<String> toList(LocalDate first, LocalDate second) {
@@ -54,11 +51,7 @@ public class DBUtils {
                     second.getMonthValue(),
                     second.getYear());
 
-            List<String> list = new ArrayList<>();
-            list.add(firstS);
-            list.add(secondS);
-
-            return list;
+            return ImmutableList.of(firstS, secondS);
         }
 
         List<LocalDate> toLocalDate() {
@@ -154,7 +147,7 @@ public class DBUtils {
         }
     }
 
-    public static String getSeasonKey(String season) {
+    static String getSeasonKey(String season) {
         checkNotNull(season, "season must not be null");
         checkArgument(
                 season.equals(SEASON_SPRING) ||
