@@ -12,6 +12,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -20,6 +21,8 @@ import static rzaevali.utils.DBUtils.*;
 public class ScheduleUtils {
 
     private static final String BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_%s_%s_%s.pdf";
+
+    private static final boolean SCHEDULE_CACHE_ENABLED = Objects.equals(System.getenv("SCHEDULE_CACHE"), "enabled");
 
     static class Schedule {
 
@@ -38,6 +41,14 @@ public class ScheduleUtils {
         List<String> getDateRange() {
             return date_range;
         }
+
+        public List<List<List<String>>> getWeeks() {
+            return weeks;
+        }
+
+        public String getGroup() {
+            return group;
+        }
     }
 
     public static String getSchedule(String groupId, String season) throws IOException,
@@ -49,13 +60,17 @@ public class ScheduleUtils {
             throw new DocNotFoundException("Invalid param season");
         }
 
-        Schedule cachedSchedule = ScheduleCache.getInstance().getSchedule(groupId, season);
-
         DateRange range = DBUtils.getDateRange(groupId, season);
+
+        if (!SCHEDULE_CACHE_ENABLED) {
+            return dumpSchedule(getScheduleFromSite(groupId, season, range));
+        }
+
+        Schedule cachedSchedule = DBUtils.getCachedSchedule(groupId, season);
 
         if (cachedSchedule == null) {
             Schedule schedule = getScheduleFromSite(groupId, season, range);
-            ScheduleCache.getInstance().updateSchedule(groupId, season, schedule);
+            DBUtils.updateSchedule(groupId, season, schedule);
 
             return dumpSchedule(schedule);
         } else {
@@ -64,7 +79,7 @@ public class ScheduleUtils {
 
             if (date.compareTo(cachedDate) > 0) {
                 Schedule schedule = getScheduleFromSite(groupId, season, range);
-                ScheduleCache.getInstance().updateSchedule(groupId, season, schedule);
+                DBUtils.updateSchedule(groupId, season, schedule);
 
                 return dumpSchedule(schedule);
             } else {

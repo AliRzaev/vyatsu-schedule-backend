@@ -2,6 +2,7 @@ package rzaevali.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -18,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.utils.ScheduleUtils.Schedule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -76,7 +78,29 @@ public class DBUtils {
     private static final String GROUPS_LIST_URL =
             "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
 
+    /*
+    * Document structure:
+    * {
+    *   groupId: "groupId",
+    *   season: "season",
+    *   range: ["first", "second"]
+    * }
+    * */
     private static final String DATE_RANGES_COLLECTION = "schedule_ranges";
+
+    /*
+    * Document structure:
+    * {
+    *   groupId: "groupId",
+    *   group: "group_name",
+    *   season: "season",
+    *   range: ["first", "second"],
+    *   schedule: [
+    *       [[], ... []], [[], ... []]
+    *   ]
+    * }
+    * */
+    private static final String SCHEDULE_COLLECTION = "schedules";
 
     public static final String SEASON_AUTUMN = "autumn";
 
@@ -155,6 +179,80 @@ public class DBUtils {
         );
 
         return season.equals(SEASON_AUTUMN) ? "1" : "2";
+    }
+
+    public static Schedule getCachedSchedule(String groupId, String season) {
+        checkNotNull(groupId, "groupId must not be null");
+        checkNotNull(season, "season must not be null");
+        checkArgument(
+                season.equals(SEASON_SPRING) ||
+                        season.equals(SEASON_AUTUMN)
+        );
+
+        MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
+
+        try (MongoClient client = new MongoClient(uri)) {
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> collection = db.getCollection(SCHEDULE_COLLECTION);
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("groupId", groupId);
+            query.put("season", season);
+
+            Document res = collection.find(query).first();
+            if (res != null) {
+                List range =  res.get("range", List.class);
+                List weeks = res.get("schedule", List.class);
+                String group = res.getString("group");
+
+                return new Schedule(weeks, group, range);
+            } else {
+                return null;
+            }
+        } catch (Exception ignore) {
+            return null;
+        }
+    }
+
+    public static void updateSchedule(String groupId, String season, Schedule schedule) {
+        checkNotNull(groupId, "groupId must not be null");
+        checkNotNull(season, "season must not be null");
+        checkArgument(
+                season.equals(SEASON_SPRING) ||
+                        season.equals(SEASON_AUTUMN)
+        );
+
+        MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
+
+        try (MongoClient client = new MongoClient(uri)) {
+            MongoDatabase db = client.getDatabase(uri.getDatabase());
+            MongoCollection<Document> collection = db.getCollection(SCHEDULE_COLLECTION);
+
+            BasicDBObject query = new BasicDBObject();
+            query.put("groupId", groupId);
+            query.put("season", season);
+
+            BasicDBObject update = new BasicDBObject();
+            BasicDBObject value = new BasicDBObject();
+
+            value.put("range", schedule.getDateRange());
+            value.put("schedule", schedule.getWeeks());
+
+            update.put("$set", value);
+
+            if (collection.find(query).first() != null) {
+                collection.findOneAndUpdate(query, update);
+            } else {
+                Document entry = new Document();
+                entry.put("groupId", groupId);
+                entry.put("group", schedule.getGroup());
+                entry.put("season", season);
+                entry.put("range", schedule.getDateRange());
+                entry.put("schedule", schedule.getWeeks());
+                collection.insertOne(entry);
+            }
+        } catch (Exception ignore) {
+        }
     }
 
     private static List<String> getMaxRange(HashMap<String, Map.Entry<LocalDate, LocalDate>> map, String groupId) {
