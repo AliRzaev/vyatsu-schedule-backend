@@ -3,6 +3,8 @@ package rzaevali.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -166,7 +168,7 @@ public class DBUtils {
                     collection.insertOne(entry);
                 }
             }
-        } catch (IOException e) {
+        } catch (UnirestException e) {
             e.printStackTrace();
         }
     }
@@ -261,10 +263,9 @@ public class DBUtils {
         return DateRange.toList(e.getKey(), e.getValue());
     }
 
-    private static HashMap<String, Map.Entry<LocalDate, LocalDate>> getRangesFromSite(String season) throws IOException {
+    private static HashMap<String, Map.Entry<LocalDate, LocalDate>> getRangesFromSite(String season) throws UnirestException {
         String seasonKey = getSeasonKey(season);
-        URL url = new URL(GROUPS_LIST_URL);
-        String html = CharStreams.toString(new InputStreamReader(url.openStream()));
+        String html = Unirest.get(GROUPS_LIST_URL).asString().getBody();
         Pattern pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey));
         Matcher matcher = pattern.matcher(html);
 
