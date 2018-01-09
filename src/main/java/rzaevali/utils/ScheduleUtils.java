@@ -57,7 +57,7 @@ public class ScheduleUtils {
         checkNotNull(season, "season must not be null");
 
         if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Invalid param season");
+            throw new DocNotFoundException("Unknown parameter season");
         }
 
         DateRange range = DBUtils.getDateRange(groupId, season);

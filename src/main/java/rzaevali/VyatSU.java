@@ -74,12 +74,18 @@ public class VyatSU {
             String schedule = ScheduleUtils.getSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (DocNotFoundException e) {
-            return Response.status(422).entity(errorMessage("Invalid param season or group_id")).build();
+            return Response.status(422)
+                    .entity(errorMessage(e.getMessage()))
+                    .build();
         } catch (IOException e) {
-            return Response.status(422).entity(errorMessage("Error while parsing pdf file")).build();
+            return Response.status(422)
+                    .entity(errorMessage("Error while processing data"))
+                    .build();
         } catch (Exception e) {
             e.printStackTrace();
-            return Response.status(500).entity(errorMessage("Internal server error")).build();
+            return Response.status(500)
+                    .entity(errorMessage("Internal server error"))
+                    .build();
         }
     }
 }

@@ -132,7 +132,7 @@ public class DBUtils {
                 List<String> range = (List<String>) res.get("range");
                 return new DateRange(range.get(0), range.get(1));
             } else {
-                throw new DocNotFoundException(String.format("No doc with such groupId: %s", groupId));
+                throw new DocNotFoundException(String.format("Unknown parameter groupId: %s", groupId));
             }
         }
     }
