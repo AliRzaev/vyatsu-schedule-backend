@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.javatuples.Pair;
 import rzaevali.exceptions.DocNotFoundException;
 import rzaevali.utils.ScheduleUtils.Schedule;
 
@@ -145,29 +146,28 @@ public class DBUtils {
             MongoDatabase db = client.getDatabase(uri.getDatabase());
             MongoCollection<Document> collection = db.getCollection(DATE_RANGES_COLLECTION);
 
-            HashMap<String, Map.Entry<LocalDate, LocalDate>> dateRanges = getRangesFromSite(season);
-
-            for (String groupId : dateRanges.keySet()) {
-
+            getRangesFromSite(season).forEach((groupId, range) -> {
                 BasicDBObject query = new BasicDBObject();
                 query.put("groupId", groupId);
                 query.put("season", season);
 
-                BasicDBObject update = new BasicDBObject();
-                BasicDBObject value = new BasicDBObject();
-                value.put("range", getMaxRange(dateRanges, groupId));
-                update.put("$set", value);
+                List<String> listRange = DateRange.toList(range.getValue0(), range.getValue1());
 
                 if (collection.find(query).first() != null) {
+                    BasicDBObject update = new BasicDBObject();
+                    BasicDBObject value = new BasicDBObject();
+                    value.put("range", listRange);
+                    update.put("$set", value);
                     collection.findOneAndUpdate(query, update);
                 } else {
                     Document entry = new Document();
                     entry.put("groupId", groupId);
                     entry.put("season", season);
-                    entry.put("range", getMaxRange(dateRanges, groupId));
+                    entry.put("range", listRange);
                     collection.insertOne(entry);
                 }
-            }
+            });
+
         } catch (UnirestException e) {
             e.printStackTrace();
         }
@@ -257,28 +257,22 @@ public class DBUtils {
         }
     }
 
-    private static List<String> getMaxRange(HashMap<String, Map.Entry<LocalDate, LocalDate>> map, String groupId) {
-        Map.Entry<LocalDate, LocalDate> e = map.get(groupId);
-
-        return DateRange.toList(e.getKey(), e.getValue());
-    }
-
-    private static HashMap<String, Map.Entry<LocalDate, LocalDate>> getRangesFromSite(String season) throws UnirestException {
+    private static HashMap<String, Pair<LocalDate, LocalDate>> getRangesFromSite(String season) throws UnirestException {
         String seasonKey = getSeasonKey(season);
         String html = Unirest.get(GROUPS_LIST_URL).asString().getBody();
         Pattern pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey));
         Matcher matcher = pattern.matcher(html);
 
-        HashMap<String, Map.Entry<LocalDate, LocalDate>> dateRanges = new HashMap<>();
+        HashMap<String, Pair<LocalDate, LocalDate>> dateRanges = new HashMap<>();
         while (matcher.find()) {
             String groupId = matcher.group(1);
             LocalDate first = parseDate(matcher.group(2));
             LocalDate second = parseDate(matcher.group(3));
 
-            Map.Entry<LocalDate, LocalDate> newRange = new AbstractMap.SimpleEntry<>(first, second);
-            Map.Entry<LocalDate, LocalDate> oldRange = dateRanges.get(groupId);
+            Pair<LocalDate, LocalDate> newRange = new Pair<>(first, second);
+            Pair<LocalDate, LocalDate> oldRange = dateRanges.get(groupId);
 
-            if (oldRange == null || oldRange.getKey().compareTo(newRange.getKey()) < 0) {
+            if (oldRange == null || oldRange.getValue0().compareTo(newRange.getValue0()) < 0) {
                 dateRanges.put(groupId, newRange);
             }
         }
