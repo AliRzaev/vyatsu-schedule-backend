@@ -17,14 +17,22 @@ public class JsonUtils {
 
     }
 
-    public static final Gson STANDARD_JSON = new GsonBuilder().create();
+    private static final Gson STANDARD_JSON = new GsonBuilder().create();
 
-    public static final Gson PRETTY_JSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson PRETTY_JSON = new GsonBuilder().setPrettyPrinting().create();
+
+    public static Gson getDefaultJson() {
+        if (System.getenv("DEBUG") != null) {
+            return STANDARD_JSON;
+        } else {
+            return PRETTY_JSON;
+        }
+    }
 
     public static String errorMessage(String message) {
         checkNotNull(message);
 
-        return STANDARD_JSON.toJson(new ErrorMessage(message));
+        return getDefaultJson().toJson(new ErrorMessage(message));
     }
 
 }

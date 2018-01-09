@@ -89,11 +89,7 @@ public class ScheduleUtils {
     }
 
     private static String dumpSchedule(Schedule schedule) {
-        if (System.getenv("DEBUG") != null) {
-            return JsonUtils.PRETTY_JSON.toJson(schedule);
-        } else {
-            return JsonUtils.STANDARD_JSON.toJson(schedule);
-        }
+        return JsonUtils.getDefaultJson().toJson(schedule);
     }
 
     private static Schedule getScheduleFromSite(String groupId, String season, DateRange range) throws IOException {
