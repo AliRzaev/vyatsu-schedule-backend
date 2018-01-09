@@ -1,5 +1,7 @@
 package rzaevali.utils;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import rzaevali.exceptions.DocNotFoundException;
 import rzaevali.utils.DBUtils.*;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static rzaevali.utils.DBUtils.*;
@@ -52,7 +55,7 @@ public class ScheduleUtils {
     }
 
     public static String getSchedule(String groupId, String season) throws IOException,
-                                                                             DocNotFoundException {
+            DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
 
@@ -93,24 +96,28 @@ public class ScheduleUtils {
     }
 
     private static Schedule getScheduleFromSite(String groupId, String season, DateRange range) throws IOException {
-        URL url = new URL(String.format(BASE_URL, groupId, getSeasonKey(season), range.getFirst(), range.getSecond()));
-        List<String> rows = parsePDFFile(url);
-        List<List<String>> days = new ArrayList<>();
-        for (int i = 0; i < 14; ++i) {
-            days.add(new ArrayList<>());
-        }
+        URL url = new URL(String.format(
+                BASE_URL,
+                groupId,
+                getSeasonKey(season),
+                range.getFirst(),
+                range.getSecond()
+        ));
 
-        for (int i = 2; i < rows.size(); i += 7) {
-            List<String> day = days.get((i - 2) / 7);
-            for (int j = i; j < i + 7; ++j) {
-                day.add(rows.get(j));
-            }
-        }
+        List<String> rows = parsePDFFile(url);
+        List<List<String>> days = IntStream.range(0, 14)
+                .mapToObj(day -> {
+                    int fromIndex = 2 + day * 7;
+                    int toIndex = fromIndex + 7;
+                    return rows.subList(fromIndex, toIndex);
+                })
+                .collect(Collectors.toList());
 
         String group = rows.get(1).split(" ")[2];
-        List<List<List<String>>> weeks = new ArrayList<>();
-        weeks.add(days.subList(0, 6));
-        weeks.add(days.subList(7, 13));
+        List<List<List<String>>> weeks = ImmutableList.of(
+                days.subList(0, 6),
+                days.subList(7, 13)
+        );
 
         return new Schedule(weeks, group, range.toList());
     }
@@ -119,14 +126,9 @@ public class ScheduleUtils {
         try (PDDocument pdfDocument = PDDocument.load(url.openStream())) {
             PageIterator pageIterator = new ObjectExtractor(pdfDocument).extract();
             ExtractionAlgorithm algorithm = new SpreadsheetExtractionAlgorithm();
-            List<Table> tables = new ArrayList<>();
 
-            while (pageIterator.hasNext()) {
-                Page page = pageIterator.next();
-                tables.addAll(algorithm.extract(page));
-            }
-
-            return tables.stream()
+            return Streams.stream(pageIterator)
+                    .flatMap(page -> algorithm.extract(page).stream())
                     .flatMap(table -> table.getRows().stream())
                     .map(row -> row.stream()
                             .map(RectangularTextContainer::getText)
