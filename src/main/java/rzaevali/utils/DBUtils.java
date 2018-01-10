@@ -134,8 +134,12 @@ public class DBUtils {
         }
     }
 
-    public static void updateDateRanges(String season) {
-        checkArgument(season.equals(SEASON_SPRING) || season.equals(SEASON_AUTUMN));
+    public static void updateDateRanges(String season) throws DocNotFoundException {
+        checkNotNull(season);
+
+        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
+            throw new DocNotFoundException("Unknown parameter season");
+        }
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
 
@@ -180,13 +184,13 @@ public class DBUtils {
         return season.equals(SEASON_AUTUMN) ? "1" : "2";
     }
 
-    public static Schedule getCachedSchedule(String groupId, String season) {
+    public static Schedule getCachedSchedule(String groupId, String season) throws DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
-        checkArgument(
-                season.equals(SEASON_SPRING) ||
-                        season.equals(SEASON_AUTUMN)
-        );
+
+        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
+            throw new DocNotFoundException("Unknown parameter season");
+        }
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
 
@@ -213,13 +217,14 @@ public class DBUtils {
         }
     }
 
-    public static void updateSchedule(String groupId, String season, Schedule schedule) {
+    public static void updateSchedule(String groupId, String season, Schedule schedule) throws DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
-        checkArgument(
-                season.equals(SEASON_SPRING) ||
-                        season.equals(SEASON_AUTUMN)
-        );
+        checkNotNull(schedule, "schedule must not be null");
+
+        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
+            throw new DocNotFoundException("Unknown parameter season");
+        }
 
         MongoClientURI uri = new MongoClientURI(System.getenv("MONGODB_URI"));
 

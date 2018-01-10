@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static rzaevali.utils.DBUtils.*;
 
@@ -57,6 +58,9 @@ public class ScheduleUtils {
     }
 
     public static int compareDates(List<String> first, List<String> second) {
+        checkArgument(first.size() == 2);
+        checkArgument(second.size() == 2);
+
         LocalDate firstDate = parseDate(first.get(0));
         LocalDate secondDate = parseDate(second.get(0));
 
