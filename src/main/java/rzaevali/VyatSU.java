@@ -1,6 +1,6 @@
 package rzaevali;
 
-import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.ScheduleUtils;
 
 import javax.servlet.ServletContext;
@@ -13,9 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
-import static rzaevali.utils.JsonUtils.errorMessage;
+import static rzaevali.utils.JsonUtils.error;
 
 @Path("vyatsu")
 public class VyatSU {
@@ -73,18 +72,15 @@ public class VyatSU {
         try {
             String schedule = ScheduleUtils.getSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
-        } catch (DocNotFoundException e) {
+        } catch (VyatsuScheduleException e) {
             return Response.status(422)
-                    .entity(errorMessage(e.getMessage()))
-                    .build();
-        } catch (IOException e) {
-            return Response.status(422)
-                    .entity(errorMessage("Error while processing data"))
+                    .entity(error(e.getMessage()))
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
+
             return Response.status(500)
-                    .entity(errorMessage("Internal server error"))
+                    .entity(error("Internal server error"))
                     .build();
         }
     }

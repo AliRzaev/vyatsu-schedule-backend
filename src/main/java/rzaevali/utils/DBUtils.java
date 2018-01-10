@@ -1,8 +1,6 @@
 package rzaevali.utils;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mongodb.BasicDBObject;
@@ -12,9 +10,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -29,15 +24,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DBUtils {
 
-    public static class DateRange {
+    public static class DateRange implements Comparable<DateRange> {
 
         private String first;
 
         private String second;
 
+        private LocalDate firstDate;
+
         DateRange(String first, String second) {
             this.first = first;
             this.second = second;
+            this.firstDate = parseDate(first);
         }
 
         public List<String> toList() {
@@ -59,10 +57,6 @@ public class DBUtils {
             return ImmutableList.of(firstS, secondS);
         }
 
-        List<LocalDate> toLocalDate() {
-            return ImmutableList.of(parseDate(first), parseDate(second));
-        }
-
         @Override
         public String toString() {
             return String.format("[%s, %s]", first, second);
@@ -76,6 +70,10 @@ public class DBUtils {
             return second;
         }
 
+        @Override
+        public int compareTo(DateRange o) {
+            return this.firstDate.compareTo(o.firstDate);
+        }
     }
 
     private static final String GROUPS_LIST_URL =
@@ -109,7 +107,7 @@ public class DBUtils {
 
     public static final String SEASON_SPRING = "spring";
 
-    static DateRange getDateRange(String groupId, String season) throws DocNotFoundException {
+    static List<String> getDateRange(String groupId, String season) throws DocNotFoundException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
         checkArgument(
@@ -129,8 +127,7 @@ public class DBUtils {
 
             Document res = collection.find(query).first();
             if (res != null) {
-                List<String> range = (List<String>) res.get("range");
-                return new DateRange(range.get(0), range.get(1));
+                return (List<String>) res.get("range");
             } else {
                 throw new DocNotFoundException(String.format("Unknown parameter groupId: %s", groupId));
             }
