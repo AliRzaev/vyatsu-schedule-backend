@@ -10,18 +10,18 @@ public class DBUtilsTest {
 
     @Test(expected = DocNotFoundException.class)
     public void testArgumentChecks1() throws DocNotFoundException {
-        DBUtils.getCachedSchedule("0000", "");
+        DBUtils.getInstance().getCachedSchedule("0000", "");
     }
 
     @Test(expected = DocNotFoundException.class)
     public void testArgumentChecks2() throws DocNotFoundException {
-        DBUtils.updateDateRanges("");
+        DBUtils.getInstance().updateDateRanges("");
     }
 
     @Test
     public void testCachedSchedule() throws DocNotFoundException {
-        assertNull(DBUtils.getCachedSchedule("", DBUtils.SEASON_AUTUMN));
-        assertNull(DBUtils.getCachedSchedule("", DBUtils.SEASON_SPRING));
+        assertNull(DBUtils.getInstance().getCachedSchedule("", DBUtils.SEASON_AUTUMN));
+        assertNull(DBUtils.getInstance().getCachedSchedule("", DBUtils.SEASON_SPRING));
     }
 
 }

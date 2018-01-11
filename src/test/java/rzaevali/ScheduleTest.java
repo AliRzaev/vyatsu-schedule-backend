@@ -5,6 +5,7 @@ import org.junit.Test;
 import rzaevali.exceptions.DocNotFoundException;
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.JsonUtils;
+import rzaevali.utils.PdfUtils;
 import rzaevali.utils.ScheduleUtils;
 
 import java.io.FileReader;
@@ -31,7 +32,7 @@ public class ScheduleTest {
             String pdfPath = String.format(pathPattern, "pdf", groupId, "pdf");
             String jsonPath = String.format(pathPattern, "json", groupId, "json");
 
-            List data = ScheduleUtils.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
+            List data = PdfUtils.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
             List originalData = (List) JsonUtils.getDefaultJson()
                     .fromJson(new FileReader(jsonPath), Map.class).get("weeks");
 

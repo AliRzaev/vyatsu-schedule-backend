@@ -54,14 +54,6 @@ public class JsonUtils {
         return getDefaultJson().toJson(new ErrorMessage(message));
     }
 
-    public static String schedule(ScheduleUtils.Schedule schedule) {
-        return schedule(
-                schedule.getWeeks(),
-                schedule.getGroup(),
-                schedule.getDateRange()
-        );
-    }
-
     public static String schedule(List<List<List<String>>> weeks, String group, List<String> date_range) {
         checkNotNull(weeks);
         checkNotNull(group);
