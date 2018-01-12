@@ -20,6 +20,10 @@ import static org.junit.Assert.assertTrue;
 
 public class ScheduleTest {
 
+    private static final String INCORRECT_SEASON = "null";
+
+    private static final String TEST_GROUP_ID = "0000";
+
     @Test
     public void testParsing() throws IOException, VyatsuScheduleException {
         List<Integer> groupIds = ImmutableList.of(
@@ -42,7 +46,7 @@ public class ScheduleTest {
 
     @Test(expected = UnknownValueException.class)
     public void testArgumentChecks() throws VyatsuScheduleException {
-        ScheduleUtils.getSchedule("0000", "");
+        ScheduleUtils.getSchedule(TEST_GROUP_ID, INCORRECT_SEASON);
     }
 
     @Test

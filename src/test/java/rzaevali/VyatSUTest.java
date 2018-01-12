@@ -11,6 +11,12 @@ import static org.junit.Assert.assertEquals;
 
 public class VyatSUTest extends JerseyTest {
 
+    private static final String INCORRECT_GROUP_ID = "null";
+
+    private static final String INCORRECT_SEASON = "null";
+
+    private static final String TEST_GROUP_ID = "0000";
+
     @Override
     protected Application configure() {
         return new ResourceConfig(VyatSU.class);
@@ -18,7 +24,7 @@ public class VyatSUTest extends JerseyTest {
 
     @Test
     public void testIncorrectGroupId() {
-        Response response = target("/vyatsu/schedule/null/autumn")
+        Response response = target(String.format("/vyatsu/schedule/%s/autumn", INCORRECT_GROUP_ID))
                 .request()
                 .get();
         assertEquals(response.getStatus(), 422);
@@ -26,7 +32,7 @@ public class VyatSUTest extends JerseyTest {
 
     @Test
     public void testIncorrectSeason() {
-        Response response = target("/vyatsu/schedule/0000/null")
+        Response response = target(String.format("/vyatsu/schedule/0000/%s", INCORRECT_SEASON))
                 .request()
                 .get();
         assertEquals(response.getStatus(), 422);
@@ -34,7 +40,7 @@ public class VyatSUTest extends JerseyTest {
 
     @Test
     public void testNonExistentScheduleAutumn() {
-        Response response = target("/vyatsu/schedule/0000/autumn")
+        Response response = target(String.format("/vyatsu/schedule/%s/autumn", TEST_GROUP_ID))
                 .request()
                 .get();
         assertEquals(response.getStatus(), 422);
@@ -42,7 +48,7 @@ public class VyatSUTest extends JerseyTest {
 
     @Test
     public void testNonExistentScheduleSpring() {
-        Response response = target("/vyatsu/schedule/0000/spring")
+        Response response = target(String.format("/vyatsu/schedule/%s/spring", TEST_GROUP_ID))
                 .request()
                 .get();
         assertEquals(response.getStatus(), 422);
