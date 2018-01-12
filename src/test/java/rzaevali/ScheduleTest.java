@@ -2,7 +2,7 @@ package rzaevali;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.exceptions.UnknownValueException;
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.JsonUtils;
 import rzaevali.utils.PdfUtils;
@@ -40,7 +40,7 @@ public class ScheduleTest {
         }
     }
 
-    @Test(expected = DocNotFoundException.class)
+    @Test(expected = UnknownValueException.class)
     public void testArgumentChecks() throws VyatsuScheduleException {
         ScheduleUtils.getSchedule("0000", "");
     }

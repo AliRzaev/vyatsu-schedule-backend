@@ -9,7 +9,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.javatuples.Pair;
-import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.exceptions.UnknownValueException;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -17,16 +17,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DBUtils {
-
-    public String getGroupName(String groupId) {
-        checkNotNull(groupId, "groupId must not be null");
-
-        return "";
-    }
 
     public static class DateRange implements Comparable<DateRange> {
 
@@ -40,10 +33,6 @@ public class DBUtils {
             this.first = first;
             this.second = second;
             this.firstDate = parseDate(first);
-        }
-
-        public List<String> toList() {
-            return ImmutableList.of(first, second);
         }
 
         static List<String> toList(LocalDate first, LocalDate second) {
@@ -64,14 +53,6 @@ public class DBUtils {
         @Override
         public String toString() {
             return String.format("[%s, %s]", first, second);
-        }
-
-        String getFirst() {
-            return first;
-        }
-
-        String getSecond() {
-            return second;
         }
 
         @Override
@@ -151,7 +132,7 @@ public class DBUtils {
      * Document structure:
      * {
      *   groupId: "groupId",
-     *   group: "group_name",
+     *   group: "group_name", //deprecated
      *   season: "season",
      *   range: ["first", "second"],
      *   schedule: [
@@ -161,17 +142,41 @@ public class DBUtils {
      * */
     private static final String SCHEDULE_COLLECTION = "schedules";
 
+    /*
+    * Document structure:
+    * {
+    *   groupId: "groupId",
+    *   group: "group_name",
+    *   faculty: "faculty_name"
+    * }
+    * */
+    private static final String GROUPS_INFO_COLLECTION = "groups_info";
+
     public static final String SEASON_AUTUMN = "autumn";
 
     public static final String SEASON_SPRING = "spring";
 
-    List<String> getDateRange(String groupId, String season) throws DocNotFoundException {
+    public String getGroupName(String groupId) throws UnknownValueException {
+        checkNotNull(groupId, "groupId must not be null");
+
+        MongoCollection<Document> collection =
+                dbClient.getDatabase(dbUri.getDatabase()).getCollection(GROUPS_INFO_COLLECTION);
+
+        BasicDBObject query = new BasicDBObject()
+                .append("groupId", groupId);
+
+        Document res = collection.find(query).first();
+        if (res != null) {
+            return res.getString("group");
+        } else {
+            throw new UnknownValueException(String.format("Unknown groupId: %s", groupId));
+        }
+    }
+
+    List<String> getDateRange(String groupId, String season) throws UnknownValueException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
-
-        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Unknown parameter season");
-        }
+        checkSeason(season);
 
         MongoCollection<Document> collection =
                 dbClient.getDatabase(dbUri.getDatabase()).getCollection(DATE_RANGES_COLLECTION);
@@ -184,16 +189,13 @@ public class DBUtils {
         if (res != null) {
             return (List<String>) res.get("range", List.class);
         } else {
-            throw new DocNotFoundException(String.format("Unknown parameter groupId: %s", groupId));
+            throw new UnknownValueException(String.format("Unknown groupId: %s", groupId));
         }
     }
 
-    public void updateDateRanges(String season) throws DocNotFoundException {
+    public void updateDateRanges(String season) throws UnknownValueException {
         checkNotNull(season, "season must not be null");
-
-        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Unknown parameter season");
-        }
+        checkSeason(season);
 
         try {
             MongoCollection<Document> collection =
@@ -226,23 +228,17 @@ public class DBUtils {
         }
     }
 
-    static String getSeasonKey(String season) {
+    static String getSeasonKey(String season) throws UnknownValueException {
         checkNotNull(season, "season must not be null");
-        checkArgument(
-                season.equals(SEASON_SPRING) ||
-                        season.equals(SEASON_AUTUMN)
-        );
+        checkSeason(season);
 
         return season.equals(SEASON_AUTUMN) ? "1" : "2";
     }
 
-    public ScheduleInfo getCachedSchedule(String groupId, String season) throws DocNotFoundException {
+    public ScheduleInfo getCachedSchedule(String groupId, String season) throws UnknownValueException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
-
-        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Unknown parameter season");
-        }
+        checkSeason(season);
 
         MongoCollection<Document> collection =
                 dbClient.getDatabase(dbUri.getDatabase()).getCollection(SCHEDULE_COLLECTION);
@@ -262,13 +258,9 @@ public class DBUtils {
         }
     }
 
-    public void updateSchedule(ScheduleInfo scheduleInfo) throws DocNotFoundException {
+    public void updateSchedule(ScheduleInfo scheduleInfo) throws UnknownValueException {
         checkNotNull(scheduleInfo, "schedule info must not be null");
-        String season = scheduleInfo.getSeason();
-
-        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Unknown parameter season");
-        }
+        checkSeason(scheduleInfo.getSeason());
 
         MongoCollection<Document> collection =
                 dbClient.getDatabase(dbUri.getDatabase()).getCollection(SCHEDULE_COLLECTION);
@@ -296,7 +288,7 @@ public class DBUtils {
         }
     }
 
-    private HashMap<String, Pair<LocalDate, LocalDate>> getRangesFromSite(String season) throws UnirestException {
+    private HashMap<String, Pair<LocalDate, LocalDate>> getRangesFromSite(String season) throws UnirestException, UnknownValueException {
         String seasonKey = getSeasonKey(season);
         String html = Unirest.get(GROUPS_LIST_URL).asString().getBody();
         Pattern pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey));
@@ -317,6 +309,14 @@ public class DBUtils {
         }
 
         return dateRanges;
+    }
+
+    private static String checkSeason(String season) throws UnknownValueException {
+        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
+            throw new UnknownValueException(String.format("Unknown season: %s", season));
+        } else {
+            return season;
+        }
     }
 
     static LocalDate parseDate(String date) {

@@ -1,6 +1,6 @@
 package rzaevali.utils;
 
-import rzaevali.exceptions.DocNotFoundException;
+import rzaevali.exceptions.UnknownValueException;
 import rzaevali.exceptions.VyatsuScheduleException;
 
 import java.time.LocalDate;
@@ -30,10 +30,6 @@ public class ScheduleUtils {
     public static String getSchedule(String groupId, String season) throws VyatsuScheduleException {
         checkNotNull(groupId, "groupId must not be null");
         checkNotNull(season, "season must not be null");
-
-        if (!season.equals(SEASON_AUTUMN) && !season.equals(SEASON_SPRING)) {
-            throw new DocNotFoundException("Unknown parameter season");
-        }
 
         if (SCHEDULE_CACHE_ENABLED) {
             return getScheduleUsingCache(groupId, season);
@@ -83,7 +79,7 @@ public class ScheduleUtils {
         }
     }
 
-    private static String buildUrl(String groupId, String season, List<String> range) {
+    private static String buildUrl(String groupId, String season, List<String> range) throws UnknownValueException {
         return String.format(
                 BASE_URL,
                 groupId,
