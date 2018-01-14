@@ -84,4 +84,20 @@ public class VyatSU {
                     .build();
         }
     }
+
+    @GET
+    @Path("/v2/calls")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCallsV2() throws FileNotFoundException {
+        String path = context.getRealPath("/data/calls-v2.json");
+        return Response.ok().entity(new FileInputStream(path)).build();
+    }
+
+    @GET
+    @Path("/v2/groups.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGroupsV2JSON() throws FileNotFoundException {
+        String path = context.getRealPath("/data/groups-v2.json");
+        return Response.ok().entity(new FileInputStream(path)).build();
+    }
 }
