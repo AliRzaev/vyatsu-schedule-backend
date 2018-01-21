@@ -1,4 +1,4 @@
-package rzaevali;
+package rzaevali.api;
 
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.ScheduleUtils;
@@ -17,7 +17,7 @@ import java.io.FileNotFoundException;
 import static rzaevali.utils.JsonUtils.error;
 
 @Path("vyatsu")
-public class VyatSU {
+public class VyatSUv1 {
 
     @Context
     private ServletContext context;
@@ -85,19 +85,4 @@ public class VyatSU {
         }
     }
 
-    @GET
-    @Path("/v2/calls")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getCallsV2() throws FileNotFoundException {
-        String path = context.getRealPath("/data/calls-v2.json");
-        return Response.ok().entity(new FileInputStream(path)).build();
-    }
-
-    @GET
-    @Path("/v2/groups.json")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getGroupsV2JSON() throws FileNotFoundException {
-        String path = context.getRealPath("/data/groups-v2.json");
-        return Response.ok().entity(new FileInputStream(path)).build();
-    }
 }

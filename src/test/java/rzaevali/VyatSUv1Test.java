@@ -3,13 +3,14 @@ package rzaevali;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
+import rzaevali.api.VyatSUv1;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 
-public class VyatSUTest extends JerseyTest {
+public class VyatSUv1Test extends JerseyTest {
 
     private static final String INCORRECT_GROUP_ID = "null";
 
@@ -19,7 +20,7 @@ public class VyatSUTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(VyatSU.class);
+        return new ResourceConfig(VyatSUv1.class);
     }
 
     @Test
