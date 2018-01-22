@@ -1,4 +1,3 @@
-/target/
-/bin/
+target
 .idea
 vyatsuscheduleapi.iml
