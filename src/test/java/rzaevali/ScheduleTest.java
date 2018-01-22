@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ScheduleTest {
 
@@ -47,14 +46,6 @@ public class ScheduleTest {
     @Test(expected = UnknownValueException.class)
     public void testArgumentChecks() throws VyatsuScheduleException {
         ScheduleUtils.getSchedule(TEST_GROUP_ID, INCORRECT_SEASON);
-    }
-
-    @Test
-    public void testDateComparison() {
-        List<String> firstDate = ImmutableList.of("11102017", "25102017");
-        List<String> secondDate = ImmutableList.of("31102017", "13112017");
-
-        assertTrue(ScheduleUtils.compareDates(firstDate, secondDate) < 1);
     }
 
 }

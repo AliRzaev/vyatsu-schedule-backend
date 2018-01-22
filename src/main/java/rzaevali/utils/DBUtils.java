@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static rzaevali.utils.DateUtils.parseDate;
 
 public class DBUtils {
 
@@ -143,13 +144,13 @@ public class DBUtils {
     private static final String SCHEDULE_COLLECTION = "schedules";
 
     /*
-    * Document structure:
-    * {
-    *   groupId: "groupId",
-    *   group: "group_name",
-    *   faculty: "faculty_name"
-    * }
-    * */
+     * Document structure:
+     * {
+     *   groupId: "groupId",
+     *   group: "group_name",
+     *   faculty: "faculty_name"
+     * }
+     * */
     private static final String GROUPS_INFO_COLLECTION = "groups_info";
 
     public static final String SEASON_AUTUMN = "autumn";
@@ -317,14 +318,6 @@ public class DBUtils {
         } else {
             return season;
         }
-    }
-
-    static LocalDate parseDate(String date) {
-        int day = Integer.parseInt(date.substring(0, 2));
-        int month = Integer.parseInt(date.substring(2, 4));
-        int year = Integer.parseInt(date.substring(4));
-
-        return LocalDate.of(year, month, day);
     }
 
 }
