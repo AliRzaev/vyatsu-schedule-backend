@@ -1,7 +1,8 @@
 package rzaevali.api;
 
 import rzaevali.exceptions.VyatsuScheduleException;
-import rzaevali.utils.ScheduleUtils;
+import rzaevali.utils.JsonUtils;
+import rzaevali.utils.ScheduleUtilsKt;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -70,7 +71,7 @@ public class VyatSUv1 {
             @PathParam("season") String season
     ) {
         try {
-            String schedule = ScheduleUtils.getSchedule(groupId, season);
+            String schedule = JsonUtils.getDefaultJson().toJson(ScheduleUtilsKt.getSchedule(groupId, season));
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (VyatsuScheduleException e) {
             return Response.status(422)

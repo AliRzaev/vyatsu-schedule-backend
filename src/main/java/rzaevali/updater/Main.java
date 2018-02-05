@@ -1,12 +1,13 @@
 package rzaevali.updater;
 
 import rzaevali.exceptions.UnknownValueException;
-import rzaevali.utils.DBUtils;
 import rzaevali.utils.DateUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+
+import static rzaevali.utils.DBUtilsKt.*;
 
 public class Main {
 
@@ -19,10 +20,10 @@ public class Main {
         }
 
         if (DateUtils.isAutumn(currentDate)) {
-            DBUtils.getInstance().updateDateRanges(DBUtils.SEASON_AUTUMN);
+            updateDateRanges(SEASON_AUTUMN);
         }
         if (DateUtils.isSpring(currentDate)) {
-            DBUtils.getInstance().updateDateRanges(DBUtils.SEASON_SPRING);
+            updateDateRanges(SEASON_SPRING);
         }
     }
 

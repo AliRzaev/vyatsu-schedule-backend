@@ -6,7 +6,7 @@ import rzaevali.exceptions.UnknownValueException;
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.JsonUtils;
 import rzaevali.utils.PdfUtils;
-import rzaevali.utils.ScheduleUtils;
+import rzaevali.utils.ScheduleUtilsKt;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ScheduleTest {
 
     @Test(expected = UnknownValueException.class)
     public void testArgumentChecks() throws VyatsuScheduleException {
-        ScheduleUtils.getSchedule(TEST_GROUP_ID, INCORRECT_SEASON);
+        ScheduleUtilsKt.getSchedule(TEST_GROUP_ID, INCORRECT_SEASON);
     }
 
 }
