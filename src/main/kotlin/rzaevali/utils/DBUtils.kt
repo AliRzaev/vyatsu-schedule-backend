@@ -45,6 +45,7 @@ data class ScheduleInfo(
 fun getGroupName(groupId: String): String {
     val collection = database.getCollection<GroupInfo>(GROUPS_INFO_COLLECTION)
 
+    //TODO: rewrite queries with raw string
     val query = BasicDBObject()
             .append("groupId", groupId)
 
