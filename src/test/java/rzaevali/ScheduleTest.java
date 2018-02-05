@@ -5,7 +5,7 @@ import org.junit.Test;
 import rzaevali.exceptions.UnknownValueException;
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.JsonUtils;
-import rzaevali.utils.PdfUtils;
+import rzaevali.utils.PdfUtilsKt;
 import rzaevali.utils.ScheduleUtilsKt;
 
 import java.io.FileReader;
@@ -35,7 +35,7 @@ public class ScheduleTest {
             String pdfPath = String.format(pathPattern, "pdf", groupId, "pdf");
             String jsonPath = String.format(pathPattern, "json", groupId, "json");
 
-            List data = PdfUtils.INSTANCE.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
+            List data = PdfUtilsKt.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
             List originalData = (List) JsonUtils.getDefaultJson()
                     .fromJson(new FileReader(jsonPath), Map.class).get("weeks");
 

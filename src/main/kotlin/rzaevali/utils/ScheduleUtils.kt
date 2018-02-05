@@ -2,7 +2,6 @@ package rzaevali.utils
 
 import rzaevali.exceptions.UnknownValueException
 import rzaevali.exceptions.VyatsuScheduleException
-import rzaevali.utils.PdfUtils.extractSchedule
 
 private const val BASE_URL = "https://www.vyatsu.ru/reports/schedule/Group/%s_%s_%s_%s.pdf"
 
