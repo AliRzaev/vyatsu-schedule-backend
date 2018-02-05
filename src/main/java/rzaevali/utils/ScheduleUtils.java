@@ -34,7 +34,7 @@ public class ScheduleUtils {
         String url = buildUrl(groupId, season, range);
 
         return JsonUtils.schedule(
-                PdfUtils.extractSchedule(url),
+                PdfUtils.INSTANCE.extractSchedule(url),
                 group,
                 range
         );
@@ -47,7 +47,7 @@ public class ScheduleUtils {
         ScheduleInfo cachedSchedule = DBUtils.getInstance().getCachedSchedule(groupId, season);
 
         if (cachedSchedule == null || compareDates(range, cachedSchedule.getDateRange()) > 0) {
-            List<List<List<String>>> weeks = PdfUtils.extractSchedule(url);
+            List<List<List<String>>> weeks = PdfUtils.INSTANCE.extractSchedule(url);
             DBUtils.getInstance().updateSchedule(new ScheduleInfo(
                     weeks,
                     groupId,

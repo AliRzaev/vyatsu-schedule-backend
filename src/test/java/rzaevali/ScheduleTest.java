@@ -35,7 +35,7 @@ public class ScheduleTest {
             String pdfPath = String.format(pathPattern, "pdf", groupId, "pdf");
             String jsonPath = String.format(pathPattern, "json", groupId, "json");
 
-            List data = PdfUtils.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
+            List data = PdfUtils.INSTANCE.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
             List originalData = (List) JsonUtils.getDefaultJson()
                     .fromJson(new FileReader(jsonPath), Map.class).get("weeks");
 
