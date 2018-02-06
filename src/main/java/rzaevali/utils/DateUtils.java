@@ -16,7 +16,7 @@ public class DateUtils {
         int augustValue = Month.AUGUST.getValue();
         int decemberValue = Month.DECEMBER.getValue();
 
-        return monthValue <= decemberValue || monthValue >= augustValue;
+        return monthValue <= decemberValue && monthValue >= augustValue;
     }
 
     public static boolean isSpring(LocalDate currentDate) {
