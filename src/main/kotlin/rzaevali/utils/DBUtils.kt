@@ -2,10 +2,11 @@ package rzaevali.utils
 
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
-import com.mongodb.BasicDBObject
 import com.mongodb.MongoClientURI
 import org.litote.kmongo.KMongo
+import org.litote.kmongo.MongoOperator.set
 import org.litote.kmongo.findOne
+import org.litote.kmongo.findOneAndUpdate
 import org.litote.kmongo.getCollection
 import rzaevali.exceptions.UnknownValueException
 import java.time.LocalDate
@@ -45,9 +46,9 @@ data class ScheduleInfo(
 fun getGroupName(groupId: String): String {
     val collection = database.getCollection<GroupInfo>(GROUPS_INFO_COLLECTION)
 
-    //TODO: rewrite queries with raw string
-    val query = BasicDBObject()
-            .append("groupId", groupId)
+    val query = """{
+            "groupId": "$groupId"
+    }"""
 
     val res = collection.findOne(query)
 
@@ -64,17 +65,19 @@ fun updateDateRanges(season: String) {
         val collection = database.getCollection<DateRange>(DATE_RANGES_COLLECTION)
 
         getRangesFromSite(season).forEach({ groupId, range ->
-            val query = BasicDBObject()
-                    .append("groupId", groupId)
-                    .append("season", season)
+            val query = """{
+                    "groupId": "$groupId",
+                    "season":  "$season"
+            }"""
 
             val listRange = range.toList()
 
-            if (collection.find(query).first() != null) {
-                val value = BasicDBObject()
-                        .append("range", listRange)
-                val update = BasicDBObject()
-                        .append("\$set", value)
+            if (collection.findOne(query) != null) {
+                val update = """{
+                    "$set": {
+                        "range": "$listRange"
+                    }
+                }"""
 
                 collection.findOneAndUpdate(query, update)
             } else {
@@ -93,9 +96,10 @@ fun getCachedSchedule(groupId: String, season: String): ScheduleInfo? {
 
     val collection = database.getCollection<ScheduleInfo>(SCHEDULE_COLLECTION)
 
-    val query = BasicDBObject()
-            .append("groupId", groupId)
-            .append("season", season)
+    val query = """{
+            "groupId": "$groupId",
+            "season":  "$season"
+    }"""
 
     return collection.findOne(query)
 }
@@ -105,17 +109,18 @@ fun updateSchedule(scheduleInfo: ScheduleInfo) {
     checkSeason(scheduleInfo.season)
 
     val collection = database.getCollection<ScheduleInfo>(SCHEDULE_COLLECTION)
+    val query = """{
+            "groupId": "${scheduleInfo.groupId}",
+            "season":  "${scheduleInfo.season}"
+    }"""
 
-    val query = BasicDBObject()
-            .append("groupId", scheduleInfo.groupId)
-            .append("season", scheduleInfo.season)
-
-    if (collection.find(query).first() != null) {
-        val value = BasicDBObject()
-                .append("range", scheduleInfo.range)
-                .append("schedule", scheduleInfo.schedule)
-        val update = BasicDBObject()
-                .append("\$set", value)
+    if (collection.findOne(query) != null) {
+        val update = """{
+            "$set": {
+                "range":    "${scheduleInfo.range}",
+                "schedule": "${scheduleInfo.schedule}"
+            }
+        }"""
 
         collection.findOneAndUpdate(query, update)
     } else {
@@ -162,9 +167,10 @@ private fun checkSeason(season: String): String {
 internal fun getDateRange(groupId: String, season: String): List<String> {
     val collection = database.getCollection<DateRange>(DATE_RANGES_COLLECTION)
 
-    val query = BasicDBObject()
-            .append("groupId", groupId)
-            .append("season", season)
+    val query = """{
+            "groupId": "$groupId",
+            "season":  "$season"
+    }"""
 
     val res = collection.findOne(query)
 
