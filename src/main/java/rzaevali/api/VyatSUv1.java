@@ -13,11 +13,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.logging.Logger;
 
 import static rzaevali.utils.JsonUtils.error;
+import static rzaevali.utils.LogUtils.getLogger;
 
 @Path("vyatsu")
 public class VyatSUv1 {
+
+    private static final Logger logger = getLogger("vyatsu v1");
 
     @Context
     private ServletContext context;
@@ -26,6 +30,8 @@ public class VyatSUv1 {
     @Path("/calls")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCalls() throws FileNotFoundException {
+        logger.info("/calls");
+
         String path = context.getRealPath("/data/calls.json");
         return Response.ok().entity(new FileInputStream(path)).build();
     }
@@ -34,6 +40,8 @@ public class VyatSUv1 {
     @Path("/groups.json")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGroupsJSON() throws FileNotFoundException {
+        logger.info("/groups.json");
+
         String path = context.getRealPath("/data/groups.json");
         return Response.ok().entity(new FileInputStream(path)).build();
     }
@@ -42,6 +50,8 @@ public class VyatSUv1 {
     @Path("/groups.xml")
     @Produces(MediaType.APPLICATION_XML)
     public Response getGroupsXML() throws FileNotFoundException {
+        logger.info("/groups.xml");
+
         String path = context.getRealPath("/data/groups.xml");
         return Response.ok().entity(new FileInputStream(path)).build();
     }
@@ -50,6 +60,8 @@ public class VyatSUv1 {
     @Path("/groups/by_faculty.json")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGroupsByFacultyJSON() throws FileNotFoundException {
+        logger.info("/groups/by_faculty.json");
+
         String path = context.getRealPath("/data/faculties.json");
         return Response.ok().entity(new FileInputStream(path)).build();
     }
@@ -58,6 +70,8 @@ public class VyatSUv1 {
     @Path("/groups/by_faculty.xml")
     @Produces(MediaType.APPLICATION_XML)
     public Response getGroupsByFacultyXML() throws FileNotFoundException {
+        logger.info("/groups/by_faculty.xml");
+
         String path = context.getRealPath("/data/faculties.xml");
         return Response.ok().entity(new FileInputStream(path)).build();
     }
@@ -70,6 +84,8 @@ public class VyatSUv1 {
             @PathParam("season") String season
     ) {
         try {
+            logger.info(String.format("/schedule/%s/%s", groupId, season));
+
             String schedule = ScheduleUtils.getSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (VyatsuScheduleException e) {
