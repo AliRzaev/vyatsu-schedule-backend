@@ -1,5 +1,7 @@
 package rzaevali.api;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import rzaevali.exceptions.VyatsuScheduleException;
 import rzaevali.utils.ScheduleUtils;
 
@@ -13,15 +15,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.logging.Logger;
 
 import static rzaevali.utils.JsonUtils.error;
-import static rzaevali.utils.LogUtils.getLogger;
 
 @Path("vyatsu")
 public class VyatSUv1 {
 
-    private static final Logger logger = getLogger("vyatsu v1");
+    private static final Logger logger = LogManager.getLogger("vyatsu");
 
     @Context
     private ServletContext context;
@@ -84,16 +84,18 @@ public class VyatSUv1 {
             @PathParam("season") String season
     ) {
         try {
-            logger.info(String.format("/schedule/%s/%s", groupId, season));
+            logger.info("/schedule/{}/{}", groupId, season);
 
             String schedule = ScheduleUtils.getSchedule(groupId, season);
             return Response.ok(schedule).encoding("utf-8").build();
         } catch (VyatsuScheduleException e) {
+            logger.error(e.getMessage());
+
             return Response.status(422)
                     .entity(error(e.getMessage()))
                     .build();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.throwing(e);
 
             return Response.status(500)
                     .entity(error("Internal server error"))
