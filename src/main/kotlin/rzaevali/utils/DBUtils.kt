@@ -3,11 +3,8 @@ package rzaevali.utils
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import com.mongodb.MongoClientURI
-import org.litote.kmongo.KMongo
+import org.litote.kmongo.*
 import org.litote.kmongo.MongoOperator.set
-import org.litote.kmongo.findOne
-import org.litote.kmongo.findOneAndUpdate
-import org.litote.kmongo.getCollection
 import rzaevali.exceptions.UnknownValueException
 import java.time.LocalDate
 import java.util.*
@@ -75,7 +72,7 @@ fun updateDateRanges(season: String) {
             if (collection.findOne(query) != null) {
                 val update = """{
                     "$set": {
-                        "range": "$listRange"
+                        "range": "${listRange.json}"
                     }
                 }"""
 
@@ -117,8 +114,8 @@ fun updateSchedule(scheduleInfo: ScheduleInfo) {
     if (collection.findOne(query) != null) {
         val update = """{
             "$set": {
-                "range":    "${scheduleInfo.range}",
-                "schedule": "${scheduleInfo.schedule}"
+                "range":    "${scheduleInfo.range.json}",
+                "schedule": "${scheduleInfo.schedule.json}"
             }
         }"""
 
