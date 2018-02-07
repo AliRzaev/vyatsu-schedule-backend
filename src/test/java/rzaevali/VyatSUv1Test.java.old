@@ -3,7 +3,7 @@ package rzaevali;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
-import rzaevali.api.VyatSUv1;
+import rzaevali.routes.VyatSUv1;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;

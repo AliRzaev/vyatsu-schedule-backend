@@ -15,6 +15,8 @@ public class Main {
         LocalDate currentDate = LocalDate.now(ZoneId.of("Europe/Moscow"));
         DayOfWeek currentDay = currentDate.getDayOfWeek();
 
+        System.out.println("Updating");
+
         if (!currentDay.equals(DayOfWeek.SATURDAY)) {
             return;
         }
