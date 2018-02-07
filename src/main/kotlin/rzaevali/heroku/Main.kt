@@ -2,8 +2,8 @@
 
 package rzaevali.heroku
 
-import rzaevali.routes.VyatSUv1
-import rzaevali.routes.VyatSUv2
+import rzaevali.routes.vyatsuRoutes
+import rzaevali.routes.vyatsuV2Routes
 
 import spark.Spark.port
 
@@ -17,6 +17,6 @@ fun main(args: Array<String>) {
     }
 
     port(port.toInt())
-    VyatSUv1.setRoutes()
-    VyatSUv2.setRoutes()
+    vyatsuRoutes()
+    vyatsuV2Routes()
 }
