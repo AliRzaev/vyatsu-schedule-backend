@@ -1,10 +1,11 @@
 package rzaevali;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.Test;
 import rzaevali.exceptions.UnknownValueException;
 import rzaevali.exceptions.VyatsuScheduleException;
-import rzaevali.utils.JsonUtils;
 import rzaevali.utils.PdfUtilsKt;
 import rzaevali.utils.ScheduleUtilsKt;
 
@@ -25,6 +26,8 @@ public class ScheduleTest {
 
     @Test
     public void testParsing() throws IOException, VyatsuScheduleException {
+        Gson gson = new GsonBuilder().create();
+
         List<Integer> groupIds = ImmutableList.of(
                 7795, 7794, 8891, 8969
         );
@@ -36,8 +39,7 @@ public class ScheduleTest {
             String jsonPath = String.format(pathPattern, "json", groupId, "json");
 
             List data = PdfUtilsKt.extractSchedule(Files.newInputStream(Paths.get(pdfPath)));
-            List originalData = (List) JsonUtils.getDefaultJson()
-                    .fromJson(new FileReader(jsonPath), Map.class).get("weeks");
+            List originalData = (List) gson.fromJson(new FileReader(jsonPath), Map.class).get("weeks");
 
             assertEquals(Integer.toString(groupId), originalData, data);
         }
