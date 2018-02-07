@@ -72,7 +72,7 @@ fun updateDateRanges(season: String) {
             if (collection.findOne(query) != null) {
                 val update = """{
                     "$set": {
-                        "range": "${listRange.json}"
+                        "range": ${listRange.json}
                     }
                 }"""
 
@@ -114,8 +114,8 @@ fun updateSchedule(scheduleInfo: ScheduleInfo) {
     if (collection.findOne(query) != null) {
         val update = """{
             "$set": {
-                "range":    "${scheduleInfo.range.json}",
-                "schedule": "${scheduleInfo.schedule.json}"
+                "range":    ${scheduleInfo.range.json},
+                "schedule": ${scheduleInfo.schedule.json}
             }
         }"""
 
