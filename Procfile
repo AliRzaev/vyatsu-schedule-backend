@@ -1,1 +1,1 @@
-web: java -cp target/classes:target/dependency/* rzaevali.heroku.Main
+web: java -jar target/vyatsuscheduleapi-jar-with-dependencies.jar
