@@ -13,15 +13,13 @@ fun vyatsuV2Routes() {
         get("/calls") { _, res ->
             logger.info("/calls")
 
-            res.type("application/json")
-            File("src/main/webapp/data/calls-v2.json").readText()
+            res.redirect("/static/v2/calls.json")
         }
 
         get("/groups.json") { _, res ->
             logger.info("/groups.json")
 
-            res.type("application/json")
-            File("src/main/webapp/data/groups-v2.json").readText()
+            res.redirect("/static/v2/groups.json")
         }
     }
 }

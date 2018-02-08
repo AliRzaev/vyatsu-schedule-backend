@@ -16,36 +16,31 @@ fun vyatsuRoutes() {
         get("/calls") { _, res ->
             logger.info("/calls")
 
-            res.type("application/json")
-            File("src/main/webapp/data/calls.json").readText()
+            res.redirect("/static/v1/calls.json")
         }
 
         get("/groups.json") { _, res ->
             logger.info("/groups.json")
 
-            res.type("application/json")
-            File("src/main/webapp/data/groups.json").readText()
+            res.redirect("/static/v1/groups.json")
         }
 
         get("/groups.xml") { _, res ->
             logger.info("/groups.xml")
 
-            res.type("application/xml")
-            File("src/main/webapp/data/groups.xml").readText()
+            res.redirect("/static/v1/groups.xml")
         }
 
         get("/groups/by_faculty.json") { _, res ->
             logger.info("/groups/by_faculty.json")
 
-            res.type("application/json")
-            File("src/main/webapp/data/faculties.json").readText()
+            res.redirect("/static/v1/groups/by_faculty.json")
         }
 
         get("/groups/by_faculty.xml") { _, res ->
             logger.info("/groups/by_faculty.xml")
 
-            res.type("application/xml")
-            File("src/main/webapp/data/faculties.xml").readText()
+            res.redirect("/static/v1/groups/by_faculty.xml")
         }
 
         get("/schedule/:group_id/:season") { req, res ->

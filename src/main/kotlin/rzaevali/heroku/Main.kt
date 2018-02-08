@@ -6,6 +6,7 @@ import rzaevali.routes.vyatsuRoutes
 import rzaevali.routes.vyatsuV2Routes
 
 import spark.Spark.port
+import spark.Spark.staticFiles
 
 fun main(args: Array<String>) {
     val defaultPort = "8080"
@@ -17,6 +18,8 @@ fun main(args: Array<String>) {
     }
 
     port(port.toInt())
+
+    staticFiles.location("/public")
     vyatsuRoutes()
     vyatsuV2Routes()
 }
