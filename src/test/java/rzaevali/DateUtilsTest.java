@@ -15,12 +15,13 @@ public class DateUtilsTest {
 
     @Test
     public void testDate() {
-        LocalDate date = LocalDate.now(ZoneId.of("Europe/Moscow"));
+        for (int month = 1; month <= 7; ++month) {
+            assertTrue(DateUtils.isSpring(LocalDate.of(2017, month, 1)));
+        }
 
-        boolean isAutumn = DateUtils.isAutumn(date);
-        boolean isSpring = DateUtils.isSpring(date);
-
-        assertTrue(isAutumn != isSpring);
+        for (int month = 8; month <= 12; ++month) {
+            assertTrue(DateUtils.isAutumn(LocalDate.of(2017, month, 1)));
+        }
     }
 
     @Test
