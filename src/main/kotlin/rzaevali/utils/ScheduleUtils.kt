@@ -9,13 +9,6 @@ private val SCHEDULE_CACHE_ENABLED = (System.getenv("SCHEDULE_CACHE") ?: "disabl
 
 data class Schedule(val weeks: NestedList, val group: String, val date_range: List<String>)
 
-fun compareDates(first: List<String>, second: List<String>): Int {
-    val firstDate = first[0].toLocalDate()
-    val secondDate = second[0].toLocalDate()
-
-    return firstDate.compareTo(secondDate)
-}
-
 @Throws(VyatsuScheduleException::class)
 fun getSchedule(groupId: String, season: String): Schedule {
     return if (SCHEDULE_CACHE_ENABLED) {

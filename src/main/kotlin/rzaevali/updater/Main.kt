@@ -3,7 +3,6 @@
 package rzaevali.updater
 
 import rzaevali.exceptions.UnknownValueException
-import rzaevali.utils.DateUtils
 
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -22,10 +21,10 @@ fun main(args: Array<String>) {
         return
     }
 
-    if (DateUtils.isAutumn(currentDate)) {
+    if (isAutumn(currentDate)) {
         updateDateRanges(SEASON_AUTUMN)
     }
-    if (DateUtils.isSpring(currentDate)) {
+    if (isSpring(currentDate)) {
         updateDateRanges(SEASON_SPRING)
     }
 }

@@ -184,15 +184,3 @@ internal fun getSeasonKey(season: String): String {
 
     return if (season == SEASON_AUTUMN) "1" else "2"
 }
-
-internal fun LocalDate.asString(): String {
-    return String.format("%02d%02d%04d", this.dayOfMonth, this.monthValue, this.year)
-}
-
-internal fun String.toLocalDate(): LocalDate {
-    val day = Integer.parseInt(this.substring(0, 2))
-    val month = Integer.parseInt(this.substring(2, 4))
-    val year = Integer.parseInt(this.substring(4))
-
-    return LocalDate.of(year, month, day)
-}
