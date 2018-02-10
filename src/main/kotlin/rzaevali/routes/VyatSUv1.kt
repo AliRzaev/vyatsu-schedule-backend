@@ -6,8 +6,6 @@ import rzaevali.exceptions.VyatsuScheduleException
 import rzaevali.utils.getSchedule
 import spark.Spark.get
 import spark.Spark.path
-import java.io.File
-
 
 private val logger = LogManager.getLogger("vyatsu")
 

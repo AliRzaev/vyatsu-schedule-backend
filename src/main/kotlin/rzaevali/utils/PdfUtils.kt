@@ -13,7 +13,6 @@ import java.net.URL
 
 typealias NestedList = List<List<List<String>>>
 
-
 @Throws(PdfFileProcessingException::class)
 private fun extractRows(stream: InputStream): List<String> {
     try {
@@ -42,11 +41,11 @@ private fun extractRows(stream: InputStream): List<String> {
 
 @Throws(VyatsuScheduleException::class)
 fun extractSchedule(stream: InputStream): NestedList {
-    val DAYS_COUNT = 14
-    val LESSONS_PER_DAY = 7
+    val daysCount = 14
+    val lessonsPerDay = 7
 
     val rows = extractRows(stream)
-    if (rows.size != DAYS_COUNT * LESSONS_PER_DAY) {
+    if (rows.size != daysCount * lessonsPerDay) {
         throw PdfFileFormatException("Invalid pdf file")
     }
 
@@ -69,7 +68,6 @@ fun extractSchedule(url: String): NestedList {
     } catch (ignore: IOException) {
         throw VyatsuServerException("vyatsu.ru server error")
     }
-
 }
 
 

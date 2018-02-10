@@ -1,5 +1,8 @@
 package rzaevali.utils
 
+import rzaevali.dao.DateRangesDao
+import rzaevali.dao.GroupsInfoDao
+import rzaevali.dao.ScheduleInfoDao
 import rzaevali.exceptions.UnknownValueException
 import rzaevali.exceptions.VyatsuScheduleException
 
@@ -11,6 +14,8 @@ data class Schedule(val weeks: NestedList, val group: String, val date_range: Li
 
 @Throws(VyatsuScheduleException::class)
 fun getSchedule(groupId: String, season: String): Schedule {
+    checkSeason(season)
+
     return if (SCHEDULE_CACHE_ENABLED) {
         getScheduleUsingCache(groupId, season)
     } else {
@@ -20,8 +25,8 @@ fun getSchedule(groupId: String, season: String): Schedule {
 
 @Throws(VyatsuScheduleException::class)
 private fun getScheduleFromSite(groupId: String, season: String): Schedule {
-    val range = getDateRange(groupId, season)
-    val group = getGroupName(groupId)
+    val range = DateRangesDao.findByGroupIdAndSeason(groupId, season).range
+    val group = GroupsInfoDao.findByGroupId(groupId).group
     val url = buildUrl(groupId, season, range)
 
     return Schedule(
@@ -33,31 +38,23 @@ private fun getScheduleFromSite(groupId: String, season: String): Schedule {
 
 @Throws(VyatsuScheduleException::class)
 private fun getScheduleUsingCache(groupId: String, season: String): Schedule {
-    val range = getDateRange(groupId, season)
-    val group = getGroupName(groupId)
+    val range = DateRangesDao.findByGroupIdAndSeason(groupId, season).range
+    val group = GroupsInfoDao.findByGroupId(groupId).group
     val url = buildUrl(groupId, season, range)
-    val cachedSchedule = getCachedSchedule(groupId, season)
+    val cachedSchedule = ScheduleInfoDao.findByGroupIdAndSeason(groupId, season)
 
-    if (cachedSchedule == null || compareDates(range, cachedSchedule.range) > 0) {
+    return if (cachedSchedule == null || compareDates(range, cachedSchedule.range) > 0) {
         val weeks = extractSchedule(url)
-        updateSchedule(ScheduleInfo(
+        ScheduleInfoDao.insertOneOrUpdate(
                 groupId,
                 season,
                 range,
                 weeks
-        ))
+        )
 
-        return Schedule(
-                weeks,
-                group,
-                range
-        )
+        Schedule(weeks, group, range)
     } else {
-        return Schedule(
-                cachedSchedule.schedule,
-                group,
-                range
-        )
+        Schedule(cachedSchedule.schedule, group, range)
     }
 }
 

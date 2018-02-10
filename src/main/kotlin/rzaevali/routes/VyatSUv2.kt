@@ -3,8 +3,6 @@ package rzaevali.routes
 import org.apache.logging.log4j.LogManager
 import spark.Spark.get
 import spark.Spark.path
-import java.io.File
-
 
 private val logger = LogManager.getLogger("vyatsu/v2")
 

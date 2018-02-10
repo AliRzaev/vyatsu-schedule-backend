@@ -5,40 +5,27 @@ import rzaevali.exceptions.UnknownValueException
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import rzaevali.dao.GroupsInfoDao
+import rzaevali.dao.ScheduleInfoDao
 import rzaevali.utils.*
 
 class DBUtilsTest {
 
-    @Test(expected = UnknownValueException::class)
-    @Throws(UnknownValueException::class)
-    fun testArgumentChecks1() {
-        getCachedSchedule(TEST_GROUP_ID, INCORRECT_SEASON)
-    }
-
-    @Test(expected = UnknownValueException::class)
-    @Throws(UnknownValueException::class)
-    fun testArgumentChecks2() {
-        updateDateRanges(INCORRECT_SEASON)
-    }
-
     @Test
-    @Throws(UnknownValueException::class)
     fun testCachedSchedule() {
-        assertNull(getCachedSchedule(INCORRECT_GROUP_ID, SEASON_AUTUMN))
-        assertNull(getCachedSchedule(INCORRECT_GROUP_ID, SEASON_SPRING))
+        assertNull(ScheduleInfoDao.findByGroupIdAndSeason(INCORRECT_GROUP_ID, SEASON_AUTUMN))
+        assertNull(ScheduleInfoDao.findByGroupIdAndSeason(INCORRECT_GROUP_ID, SEASON_SPRING))
     }
 
     @Test
-    @Throws(UnknownValueException::class)
     fun testExistentGroupId() {
-        val groupName = getGroupName(TEST_GROUP_ID)
+        val groupName = GroupsInfoDao.findByGroupId(TEST_GROUP_ID).group
         assertEquals(groupName, TEST_GROUP_NAME)
     }
 
     @Test(expected = UnknownValueException::class)
-    @Throws(UnknownValueException::class)
     fun testNonExistentGroupId() {
-        getGroupName(INCORRECT_GROUP_ID)
+        GroupsInfoDao.findByGroupId(INCORRECT_GROUP_ID)
     }
 
     companion object {
