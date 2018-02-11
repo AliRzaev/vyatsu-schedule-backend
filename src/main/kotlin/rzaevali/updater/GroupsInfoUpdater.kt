@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
 }
 
 
-fun getGroupsFromSite(url: String): Set<Triple<String, String, String>> {
+private fun getGroupsFromSite(url: String): Set<Triple<String, String, String>> {
     val document = Jsoup.parse(Unirest.get(url).asString().body)
     val tables = document
             .selectFirst("div.column-center_rasp")
