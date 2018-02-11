@@ -15,10 +15,19 @@ Required environment variables must be set before running
 
 `mvn test`
 
+### Jar archive
+
+`mvn -DskipTests package`
+
+### Groups info updater
+
+`java -cp target/classes:target/dependency/* rzaevali.updater.GroupsInfoUpdater`
+
 ### Date ranges updater
 
-`java -cp target/classes:target/dependency/* rzaevali.updater.Main`
+`java -cp target/classes:target/dependency/* rzaevali.updater.DateRangesUpdater [--forced]`
+`--forced` - update date ranges regardless of current day or season
 
 ### Server
 
-`mvn -DskipTests clean package jetty:run`
+`mvn -DskipTests compile exec:java`
