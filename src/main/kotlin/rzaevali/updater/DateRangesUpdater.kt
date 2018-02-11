@@ -6,30 +6,28 @@ import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import rzaevali.dao.DateRangesDao
 import rzaevali.exceptions.UnknownValueException
-
+import rzaevali.utils.*
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
-
-import rzaevali.utils.*
-import java.util.HashMap
-import java.util.regex.Pattern
+import java.util.*
 
 @Throws(UnknownValueException::class)
 fun main(args: Array<String>) {
     val currentDate = LocalDate.now(ZoneId.of("Europe/Moscow"))
     val currentDay = currentDate.dayOfWeek
+    val forced = "--forced" in args
 
     println("Updating")
 
-    if (currentDay != DayOfWeek.SATURDAY) {
+    if (currentDay != DayOfWeek.SATURDAY && !forced) {
         return
     }
 
-    if (isAutumn(currentDate)) {
+    if (isAutumn(currentDate) || !forced) {
         updateDateRanges(SEASON_AUTUMN)
     }
-    if (isSpring(currentDate)) {
+    if (isSpring(currentDate) || !forced) {
         updateDateRanges(SEASON_SPRING)
     }
 }
@@ -52,16 +50,13 @@ private fun updateDateRanges(season: String) {
 private fun getRangesFromSite(season: String): Map<String, Pair<String, String>> {
     val seasonKey = getSeasonKey(season)
     val html = Unirest.get(GROUPS_LIST_URL).asString().body
-    val pattern = Pattern.compile(String.format("/reports/schedule/Group/(\\d{4})_%s_(\\d{8})_(\\d{8})\\.pdf", seasonKey))
-    val matcher = pattern.matcher(html)
+    val regex = Regex("""/reports/schedule/Group/(\d{4})_${seasonKey}_(\d{8})_(\d{8})\.pdf""")
 
     val dateRanges = HashMap<String, Pair<LocalDate, LocalDate>>()
-    while (matcher.find()) {
-        val groupId = matcher.group(1)
-        val first = matcher.group(2).toLocalDate()
-        val second = matcher.group(3).toLocalDate()
+    regex.findAll(html).forEach { result ->
+        val (groupId, first, second) = result.destructured
 
-        val newRange = Pair(first, second)
+        val newRange = Pair(first.toLocalDate(), second.toLocalDate())
         val oldRange = dateRanges[groupId]
 
         if (oldRange == null || oldRange.first < newRange.first) {
