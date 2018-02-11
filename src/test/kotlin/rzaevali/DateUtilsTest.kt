@@ -1,6 +1,5 @@
 package rzaevali
 
-import com.google.common.collect.ImmutableList
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -25,8 +24,8 @@ class DateUtilsTest {
 
     @Test
     fun testDateComparison() {
-        val firstDate = ImmutableList.of("11102017", "25102017")
-        val secondDate = ImmutableList.of("31102017", "13112017")
+        val firstDate = listOf("11102017", "25102017")
+        val secondDate = listOf("31102017", "13112017")
 
         assertTrue(compareDates(firstDate, secondDate) < 1)
     }
