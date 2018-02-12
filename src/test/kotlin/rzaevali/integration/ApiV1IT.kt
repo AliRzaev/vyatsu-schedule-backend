@@ -58,7 +58,7 @@ class ApiV1IT {
 
     @Test
     fun testScheduleWithInvalidSeason() {
-        val response = Unirest.get("$url/vyatsu/schedule/$TEST_GROUP_NAME/$INCORRECT_SEASON").asString()
+        val response = Unirest.get("$url/vyatsu/schedule/$TEST_GROUP_ID/$INCORRECT_SEASON").asString()
         assertEquals("Status code must be 422", 422, response.status)
 
         val body = Klaxon().parse<ErrorResponse>(response.body)
