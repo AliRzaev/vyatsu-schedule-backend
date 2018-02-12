@@ -1,4 +1,4 @@
-package rzaevali
+package rzaevali.unit
 
 import com.google.gson.GsonBuilder
 import org.junit.Assert.assertEquals

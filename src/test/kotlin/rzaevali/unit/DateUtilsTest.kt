@@ -1,4 +1,4 @@
-package rzaevali
+package rzaevali.unit
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

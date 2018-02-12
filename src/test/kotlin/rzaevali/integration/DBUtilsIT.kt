@@ -1,4 +1,4 @@
-package rzaevali
+package rzaevali.integration
 
 import org.junit.Test
 import rzaevali.exceptions.UnknownValueException
@@ -9,7 +9,7 @@ import rzaevali.dao.GroupsInfoDao
 import rzaevali.dao.ScheduleInfoDao
 import rzaevali.utils.*
 
-class DBUtilsTest {
+class DBUtilsIT {
 
     @Test
     fun testCachedSchedule() {
@@ -34,9 +34,9 @@ class DBUtilsTest {
 
         private val INCORRECT_SEASON = "null"
 
-        private val TEST_GROUP_ID = "0000"
+        private val TEST_GROUP_ID = "7795"
 
-        private val TEST_GROUP_NAME = "Test"
+        private val TEST_GROUP_NAME = "ИВТб-3302-02-00"
 
     }
 

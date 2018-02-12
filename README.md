@@ -11,9 +11,14 @@ Current value: `mongodb://heroku_pwzr1bj8:k43nm5e2vap9o22pubde5bk91a@ds117935.ml
 
 Required environment variables must be set before running
 
-### Tests
+### Unit tests
 
-`mvn test`
+`mvn surefire:test`
+
+### Integration tests
+**Note:** environment variable MONGODB_URI must be set
+
+`mvn failsafe:integration-test`
 
 ### Jar archive
 
@@ -26,6 +31,7 @@ Required environment variables must be set before running
 ### Date ranges updater
 
 `java -cp target/classes:target/dependency/* rzaevali.updater.DateRangesUpdater [--forced]`
+
 `--forced` - update date ranges regardless of current day or season
 
 ### Server
