@@ -1,5 +1,6 @@
 package rzaevali.utils
 
+import com.mashape.unirest.http.Unirest
 import org.apache.pdfbox.pdmodel.PDDocument
 import rzaevali.exceptions.PdfFileFormatException
 import rzaevali.exceptions.PdfFileProcessingException
@@ -9,7 +10,6 @@ import technology.tabula.ObjectExtractor
 import technology.tabula.extractors.SpreadsheetExtractionAlgorithm
 import java.io.IOException
 import java.io.InputStream
-import java.net.URL
 
 typealias NestedList = List<List<List<String>>>
 
@@ -22,15 +22,16 @@ private fun extractRows(stream: InputStream): List<String> {
 
             return pageIterator.asSequence()
                     .flatMap { page -> algorithm.extract(page).asSequence() }
-                    .flatMap({ table -> table.rows.asSequence() })
+                    .flatMap { table -> table.rows.asSequence() }
                     .map { row ->
                         row.asSequence()
                                 .map { textContainer -> textContainer.text }
                                 .filter { text -> text != "" }
                                 .joinToString(" ")
                     }
+                    .map { text -> text.replace('\r', ' ') }
+                    .filter { text -> text.matches(Regex("\\d{2}:\\d{2}-\\d{2}:\\d{2}\\s*.*")) }
                     .map { text -> text.replaceFirst(Regex("\\d{2}:\\d{2}-\\d{2}:\\d{2}\\s*"), "") }
-                    .drop(2)
                     .toList()
         }
     } catch (ignore: Exception) {
@@ -64,7 +65,7 @@ fun extractSchedule(stream: InputStream): NestedList {
 @Throws(VyatsuScheduleException::class)
 fun extractSchedule(url: String): NestedList {
     try {
-        return extractSchedule(URL(url).openStream())
+        return extractSchedule(Unirest.get(url).asBinary().body)
     } catch (ignore: IOException) {
         throw VyatsuServerException("vyatsu.ru server error")
     }
