@@ -15,9 +15,9 @@ private val SCHEDULE_CACHE_ENABLED = (System.getenv("SCHEDULE_CACHE") ?: "disabl
  *
  * This class contains information about schedule of some group
  *
- * @param weeks schedule as three-dimension array: the week, the day, the lesson
- * @param group name of group
- * @param date_range two-weeks range of schedule
+ * @property weeks schedule as three-dimension array: the week, the day, the lesson
+ * @property group name of group
+ * @property date_range two-weeks range of schedule
  */
 data class Schedule(val weeks: NestedList, val group: String, val date_range: List<String>)
 
