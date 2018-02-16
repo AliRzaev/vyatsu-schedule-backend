@@ -2,8 +2,14 @@ package rzaevali.utils
 
 import rzaevali.exceptions.UnknownValueException
 
+/**
+ * Name for the first season
+ */
 const val SEASON_AUTUMN = "autumn"
 
+/**
+ * Name for the second season
+ */
 const val SEASON_SPRING = "spring"
 
 /**
