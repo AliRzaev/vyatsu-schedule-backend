@@ -11,6 +11,10 @@ import technology.tabula.extractors.SpreadsheetExtractionAlgorithm
 import java.io.IOException
 import java.io.InputStream
 
+        /**
+         * Type alias for three-dimension array of strings for representing schedule.
+         * First index - week, second - day, third - lesson
+         */
 typealias NestedList = List<List<List<String>>>
 
 /**
