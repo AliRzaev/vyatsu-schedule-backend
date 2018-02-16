@@ -2,10 +2,24 @@ package rzaevali.utils
 
 import rzaevali.exceptions.UnknownValueException
 
+/**
+ * Name for the first season
+ */
 const val SEASON_AUTUMN = "autumn"
 
+/**
+ * Name for the second season
+ */
 const val SEASON_SPRING = "spring"
 
+/**
+ * Check whether the season name is valid or not and return it
+ * The valid names are [SEASON_AUTUMN] and [SEASON_SPRING]
+ *
+ * @param season season name
+ * @return season name if it is valid
+ * @throws UnknownValueException if season name doesn't equal to [SEASON_AUTUMN] or [SEASON_SPRING]
+ */
 @Throws(UnknownValueException::class)
 fun checkSeason(season: String): String {
     return if (season != SEASON_AUTUMN && season != SEASON_SPRING) {
@@ -15,6 +29,13 @@ fun checkSeason(season: String): String {
     }
 }
 
+/**
+ * Map season name to the season key
+ *
+ * @param season season name
+ * @return season key
+ * @throws UnknownValueException if season name isn't valid
+ */
 @Throws(UnknownValueException::class)
 fun getSeasonKey(season: String): String {
     checkSeason(season)
