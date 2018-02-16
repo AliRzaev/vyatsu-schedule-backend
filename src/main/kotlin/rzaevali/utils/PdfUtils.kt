@@ -12,10 +12,22 @@ import technology.tabula.extractors.SpreadsheetExtractionAlgorithm
 import java.io.IOException
 import java.io.InputStream
 
+        /**
+         * Type alias for three-dimension array of strings for representing schedule.
+         * First index - week, second - day, third - lesson
+         */
 typealias NestedList = List<List<List<String>>>
 
 private val logger = LogManager.getLogger("PdfUtils")
 
+/**
+ * Extract table rows representing schedule from pdf document
+ * Each table row representing lesson matches to the following regular expression: \d{2}:\d{2}-\d{2}:\d{2}\s*.*
+ *
+ * @param stream InputStream instance of pdf document with schedule
+ * @return list of lessons for two weeks
+ * @throws PdfFileProcessingException if some errors occurred during extraction
+ */
 @Throws(PdfFileProcessingException::class)
 private fun extractRows(stream: InputStream): List<String> {
     try {
@@ -46,6 +58,13 @@ private fun extractRows(stream: InputStream): List<String> {
 
 }
 
+/**
+ * Extract schedule from specified stream of pdf document
+ *
+ * @param stream InputStream instance of pdf document with schedule
+ * @return schedule as three-dimension array
+ * @throws VyatsuScheduleException if some errors occurred during extraction
+ */
 @Throws(VyatsuScheduleException::class)
 fun extractSchedule(stream: InputStream): NestedList {
     val daysCount = 14
@@ -70,6 +89,13 @@ fun extractSchedule(stream: InputStream): NestedList {
     )
 }
 
+/**
+ * Extract schedule from pdf at specified URL
+ *
+ * @param url URL of the pdf document with schedule
+ * @return schedule as three-dimension array
+ * @throws VyatsuScheduleException if some errors occurred during extraction
+ */
 @Throws(VyatsuScheduleException::class)
 fun extractSchedule(url: String): NestedList {
     try {
