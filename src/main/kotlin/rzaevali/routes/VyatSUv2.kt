@@ -19,6 +19,12 @@ fun vyatsuV2Routes() {
 
             res.redirect("/static/v2/groups.json")
         }
+
+        get("/groups/by_faculty.json") {_, res ->
+            logger.info("/groups/by_faculty.json")
+
+            res.redirect("/static/v2/groups/by_faculty.json")
+        }
     }
 }
 
