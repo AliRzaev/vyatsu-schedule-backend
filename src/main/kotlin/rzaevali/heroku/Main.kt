@@ -4,9 +4,7 @@ package rzaevali.heroku
 
 import rzaevali.routes.vyatsuRoutes
 import rzaevali.routes.vyatsuV2Routes
-
-import spark.Spark.port
-import spark.Spark.staticFiles
+import spark.Spark.*
 
 fun main(args: Array<String>) {
     val defaultPort = "8080"
@@ -20,6 +18,10 @@ fun main(args: Array<String>) {
     port(port.toInt())
 
     staticFiles.location("/public")
+    after("/*") { _, res ->
+        res.header("Access-Control-Allow-Origin", "*")
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    }
     vyatsuRoutes()
     vyatsuV2Routes()
 }
