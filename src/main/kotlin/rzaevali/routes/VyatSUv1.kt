@@ -44,6 +44,9 @@ fun vyatsuRoutes() {
         get("/schedule/:group_id/:season") { req, res ->
             val groupId = req.params("group_id")
             val season = req.params("season")
+
+            LogsDao.insertOneLogRequest(groupId, season)
+
             res.type("application/json")
             try {
                 logger.info("/schedule/{}/{}", groupId, season)
