@@ -18,6 +18,9 @@ fun main(args: Array<String>) {
     port(port.toInt())
 
     staticFiles.location("/public")
+    staticFiles.header("Access-Control-Allow-Origin", "*")
+    staticFiles.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+
     after("/*") { _, res ->
         res.header("Access-Control-Allow-Origin", "*")
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
