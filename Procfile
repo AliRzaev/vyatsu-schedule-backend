@@ -1,1 +1,1 @@
-web: java -jar target/vyatsuscheduleapi-jar-with-dependencies.jar
+web: gunicorn -b 0.0.0.0:$PORT server:app
