@@ -1,0 +1,16 @@
+from utils.db_config import get_collection
+from typing import Optional, List
+from pymongo import ReplaceOne
+
+_collection = get_collection('groups_info')
+
+
+def find_group_by_id(group_id: str) -> Optional[dict]:
+    document = _collection.find_one(
+        filter={
+            'groupId': group_id
+        }
+    )
+
+    return document
+
