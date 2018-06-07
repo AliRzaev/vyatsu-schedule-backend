@@ -14,3 +14,12 @@ def find_group_by_id(group_id: str) -> Optional[dict]:
 
     return document
 
+
+def upsert_documents(documents: List[dict]):
+    operations = [
+        ReplaceOne(
+            {'groupId': document['groupId']},
+            document, upsert=True) for document in documents
+    ]
+
+    _collection.bulk_write(operations, ordered=False)
