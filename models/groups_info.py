@@ -26,4 +26,4 @@ def upsert_documents(documents: List[dict]):
 
 
 def find_all() -> List[dict]:
-    return _collection.find()
+    return list(_collection.find())

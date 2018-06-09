@@ -1,7 +1,7 @@
-from typing import Dict, List
+from typing import List
 
 
-def groups_info_to_dict(documents: List[dict], by_faculty: bool = False) -> Dict[dict]:
+def groups_info_to_dict(documents: List[dict], by_faculty: bool = False) -> dict:
     if by_faculty:
         _dict = dict()
         for document in documents:
