@@ -23,3 +23,7 @@ def upsert_documents(documents: List[dict]):
     ]
 
     _collection.bulk_write(operations, ordered=False)
+
+
+def find_all() -> List[dict]:
+    return _collection.find()
