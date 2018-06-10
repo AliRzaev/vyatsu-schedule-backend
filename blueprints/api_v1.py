@@ -1,7 +1,8 @@
 from flask import Blueprint
 from utils.wrappers import on_exception, content_type_json
 from utils.transforming.api_v1 import groups_info_to_dict
-from models import groups_info
+from utils.schedule_parsing import parse_schedule
+from models import groups_info, schedule_ranges
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
@@ -41,6 +42,7 @@ def get_calls():
 @on_exception(500)
 @content_type_json
 def get_schedule(group_id, season):
+    _range = schedule_ranges.find_by_group_and_season(group_id, season)['range']
     return {
-        'meta': '/schedule/{}/{}'.format(group_id, season)
+        'meta': parse_schedule(group_id, season, _range)
     }
