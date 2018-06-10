@@ -1,5 +1,7 @@
 from flask import Blueprint
 from utils.wrappers import on_exception, content_type_json
+from utils.transforming.api_v1 import groups_info_to_dict
+from models import groups_info
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
@@ -9,9 +11,7 @@ api_v1_blueprint = Blueprint('api_v1', __name__)
 @on_exception(500)
 @content_type_json
 def get_groups_list():
-    return {
-        'meta': '/groups/list'
-    }
+    return groups_info_to_dict(groups_info.find_all())
 
 
 @api_v1_blueprint.route('/groups/by_faculty.json', methods=['GET'])  # backward compatibility
@@ -19,9 +19,7 @@ def get_groups_list():
 @on_exception(500)
 @content_type_json
 def get_groups_by_faculty():
-    return {
-        'meta': '/groups/by_faculty'
-    }
+    return groups_info_to_dict(groups_info.find_all(), by_faculty=True)
 
 
 @api_v1_blueprint.route('/calls', methods=['GET'])
