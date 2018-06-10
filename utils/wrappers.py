@@ -46,7 +46,12 @@ def content_type_json(route):
     def wrapper_fun(*args, **kwargs):
         route_res = route(*args, **kwargs)
         if isinstance(route_res, (list, dict)):
-            return dumps(route_res, ensure_ascii=False)
+            response = dumps(route_res, ensure_ascii=False)
+            return Response(
+                response=response,
+                status=200,
+                mimetype='application/json'
+            )
         else:
             return route_res
 
