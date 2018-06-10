@@ -1,7 +1,6 @@
 from flask import Blueprint
 from utils.wrappers import on_exception, content_type_json
 
-
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
 
@@ -29,9 +28,15 @@ def get_groups_by_faculty():
 @on_exception(500)
 @content_type_json
 def get_calls():
-    return {
-        'meta': '/calls'
-    }
+    return [
+        ["8:20", "9:50"],
+        ["10:00", "11:30"],
+        ["11:45", "13:15"],
+        ["14:00", "15:30"],
+        ["15:45", "17:15"],
+        ["17:20", "18:50"],
+        ["18:55", "20:25"]
+    ]
 
 
 @api_v1_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
