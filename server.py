@@ -1,6 +1,7 @@
 from os import getenv
 
 from flask import Flask
+from flask_cors import CORS
 
 from utils.wrappers import on_exception
 from blueprints.api_v1 import api_v1_blueprint
@@ -18,6 +19,9 @@ app = Flask(__name__)
 def get_test():
     return 'OK'
 
+
+CORS(api_v1_blueprint, methods=['GET'])
+CORS(api_v2_blueprint, methods=['GET'])
 
 app.register_blueprint(api_v1_blueprint, url_prefix='/vyatsu')  # backward compatibility
 app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
