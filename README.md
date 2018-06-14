@@ -6,7 +6,7 @@
 
 `SCHEDULE_CACHE=[enabled|disabled]` - enables or disables caching group schedules in database
 
-`PORT` - port on which listen requests, default `8081`
+`PORT` - port on which listen requests, default `8080`
 
 ## Running app
 
