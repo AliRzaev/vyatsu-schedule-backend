@@ -29,7 +29,14 @@ class on_exception:
                 return route(*args, **kwargs)
             except Exception as ex:
                 _logger.exception('Error occurred at {}'.format(route.__name__))
-                return Response(str(ex), self._status_code)
+                response = dumps({
+                    'error': str(ex)[:40]
+                })
+                return Response(
+                    response=response,
+                    status=self._status_code,
+                    mimetype='application/json'
+                )
 
         wrapper_fun.__name__ = route.__name__
 
