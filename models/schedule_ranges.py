@@ -29,3 +29,7 @@ def upsert_documents(documents: List[dict]):
     ]
 
     _collection.bulk_write(operations, ordered=False)
+
+
+def delete_all():
+    _collection.drop()
