@@ -1,4 +1,4 @@
-# VyatSU schedule web server
+# VyatSU schedule API server
 
 ## Required environment variables
 
@@ -6,33 +6,24 @@
 
 `SCHEDULE_CACHE=[enabled|disabled]` - enables or disables caching group schedules in database
 
+`PORT` - port on which listen requests, default `8081`
+
 ## Running app
 
 Required environment variables must be set before running
 
-### Unit tests
+### Tests
 
-`mvn surefire:test`
-
-### Integration tests
-**Note:** environment variable MONGODB_URI must be set
-
-`mvn failsafe:integration-test`
-
-### Jar archive
-
-`mvn -DskipTests package`
+python -m unittest discover -s tests
 
 ### Groups info updater
 
-`java -cp target/classes:target/dependency/* rzaevali.updater.GroupsInfoUpdater`
+*TODO*
 
 ### Date ranges updater
 
-`java -cp target/classes:target/dependency/* rzaevali.updater.DateRangesUpdater [--forced]`
-
-`--forced` - update date ranges regardless of current day or season
+*TODO*
 
 ### Server
 
-`mvn -DskipTests compile exec:java`
+`gunicorn -b 0.0.0.0:$PORT server:app`
