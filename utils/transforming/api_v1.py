@@ -1,6 +1,7 @@
 from typing import List
 
 
+# TODO: Add docstring
 def groups_info_to_dict(documents: List[dict], by_faculty: bool = False) -> dict:
     if by_faculty:
         _dict = dict()

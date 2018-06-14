@@ -1,6 +1,7 @@
 from typing import List
 
 
+# TODO: Add docstring
 def groups_info_to_list(documents: List[dict], by_faculty: bool = False) -> List[dict]:
     if by_faculty:
         faculties = {document['faculty'] for document in documents}
