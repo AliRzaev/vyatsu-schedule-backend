@@ -42,7 +42,20 @@ def get_calls():
 @on_exception(500)
 @content_type_json
 def get_schedule(group_id, season):
-    _range = schedule_ranges.find_by_group_and_season(group_id, season)['range']
+    group_info = groups_info.find_group_by_id(group_id)
+    if group_info is None:
+        raise Exception('NO_SUCH_GROUP')
+    else:
+        group_name = group_info['group']
+
+    range_info = schedule_ranges.find_by_group_and_season(group_id, season)
+    if range_info is None:
+        raise Exception('NO_SUCH_SCHEDULE')
+    else:
+        _range = range_info['range']
+
     return {
-        'meta': parse_schedule(group_id, season, _range)
+        'group': group_name,
+        'date_range': _range,
+        'weeks': parse_schedule(group_id, season, _range)
     }
