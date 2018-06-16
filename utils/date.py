@@ -24,7 +24,7 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     week_index = (diff // 7) % 2
     day_index = diff % 7
 
-    if day_index == 5:  # sunday, go to monday
+    if day_index == 6:  # sunday, go to monday
         day_index = (day_index + 1) % 7
         week_index = (week_index + 1) % 2
 
