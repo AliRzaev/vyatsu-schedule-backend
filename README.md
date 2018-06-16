@@ -8,6 +8,8 @@
 
 `PORT` - port on which listen requests, default `8080`
 
+`PARSE_API_URL` - url to VyatSU pdf parser service
+
 ## Running app
 
 Required environment variables must be set before running
