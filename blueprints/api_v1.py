@@ -1,7 +1,8 @@
 from flask import Blueprint
 from utils.wrappers import on_exception, content_type_json
 from utils.transforming.api_v1 import groups_info_to_dict
-from utils.schedule_parsing import parse_schedule
+from utils.schedule_parsing import parse_schedule, ParseException
+from utils.responses import Error
 from models import groups_info, schedule_ranges
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
@@ -42,20 +43,30 @@ def get_calls():
 @on_exception(500)
 @content_type_json
 def get_schedule(group_id, season):
+    if season == 'autumn':
+        season_key = '1'
+    elif season == 'spring':
+        season_key = '2'
+    else:
+        return Error(422, 'INVALID_SEASON')
+
     group_info = groups_info.find_group_by_id(group_id)
     if group_info is None:
-        raise Exception('NO_SUCH_GROUP')
+        return Error(422, 'NO_SUCH_GROUP')
     else:
         group_name = group_info['group']
 
     range_info = schedule_ranges.find_by_group_and_season(group_id, season)
     if range_info is None:
-        raise Exception('NO_SUCH_SCHEDULE')
+        return Error(422, 'NO_SUCH_SCHEDULE')
     else:
         _range = range_info['range']
 
-    return {
-        'group': group_name,
-        'date_range': _range,
-        'weeks': parse_schedule(group_id, season, _range)
-    }
+    try:
+        return {
+            'group': group_name,
+            'date_range': _range,
+            'weeks': parse_schedule(group_id, season_key, _range)
+        }
+    except ParseException as ex:
+        return Error(422, str(ex))
