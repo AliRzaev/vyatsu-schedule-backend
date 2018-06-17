@@ -29,3 +29,20 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
         week_index = (week_index + 1) % 2
 
     return week_index, day_index
+
+
+def get_current_season(today: date = None) -> str:
+    """
+    Determine which season does given day belong to.
+    Season 'autumn': from 1st September to 31st December.
+    Season 'spring': from 1st January to 31st August
+    :param today: the day for which season will be determined
+    :return: 'autumn' or 'spring'
+    """
+    if today is None:
+        today = date.today()
+
+    if 9 <= today.month <= 12:
+        return 'autumn'
+    else:
+        return 'spring'

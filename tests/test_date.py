@@ -1,9 +1,9 @@
 from unittest import TestCase
 from datetime import date
-from utils.date import get_date_indexes
+from utils.date import get_date_indexes, get_current_season
 
 
-class TestDate(TestCase):
+class TestDateIndexes(TestCase):
 
     def test_left_boundary(self):
         first_date = '12032018'
@@ -69,3 +69,24 @@ class TestDate(TestCase):
 
             self.assertEqual(day, d - 19, f'Day index must be {d - 19}')
             self.assertEqual(week, 1, 'Week index must be 1')
+
+
+class TestCurrentSeason(TestCase):
+
+    def test_autumn_boundaries(self):
+        season = get_current_season(date(2018, 9, 1))
+
+        self.assertEqual(season, 'autumn', '1st September belongs to autumn season')
+
+        season = get_current_season(date(2018, 12, 31))
+
+        self.assertEqual(season, 'autumn', '31st December belongs to autumn season')
+
+    def test_spring_boundaries(self):
+        season = get_current_season(date(2018, 1, 1))
+
+        self.assertEqual(season, 'spring', '1st January belongs to spring season')
+
+        season = get_current_season(date(2018, 8, 31))
+
+        self.assertEqual(season, 'spring', '31st August belongs to spring season')
