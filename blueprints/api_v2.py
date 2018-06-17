@@ -1,11 +1,11 @@
 from flask import Blueprint
 
-from utils.schedule_parsing import parse_schedule, ParseException
-from utils.wrappers import on_exception, content_type_json
-from utils.transforming.api_v2 import groups_info_to_list
-from utils.date import get_date_indexes
-from utils.responses import Error
 from models import groups_info, schedule_ranges
+from utils import date
+from utils.responses import Error
+from utils.schedule_parsing import parse_schedule, ParseException
+from utils.transforming.api_v2 import groups_info_to_list
+from utils.wrappers import on_exception, content_type_json
 
 api_v2_blueprint = Blueprint('api_v2', __name__)
 
@@ -41,6 +41,15 @@ def get_calls():
     ]
 
 
+@api_v2_blueprint.route('/season/current', methods=['GET'])
+@on_exception(500)
+@content_type_json
+def get_current_season():
+    return {
+        'season': date.get_current_season()
+    }
+
+
 @api_v2_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
 @on_exception(500)
 @content_type_json
@@ -68,7 +77,7 @@ def get_schedule(group_id, season):
         return {
             'group': group_name,
             'date_range': _range,
-            'today': get_date_indexes(_range[0]),
+            'today': date.get_date_indexes(_range[0]),
             'weeks': parse_schedule(group_id, season_key, _range)
         }
     except ParseException as ex:
