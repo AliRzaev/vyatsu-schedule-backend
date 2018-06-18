@@ -16,11 +16,13 @@ Required environment variables must be set before running
 
 ### Tests
 
-python -m unittest discover -s tests
+Note: do not run tests with production db. It may delete all information
+
+`python -m unittest discover -s tests`
 
 ### Groups info updater
 
-python -m updaters.groups_updater
+`python -m updaters.groups_updater`
 
 ### Date ranges updater
 
