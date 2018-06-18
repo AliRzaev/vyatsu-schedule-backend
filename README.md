@@ -20,7 +20,7 @@ python -m unittest discover -s tests
 
 ### Groups info updater
 
-*TODO*
+python -m updaters.groups_updater
 
 ### Date ranges updater
 
