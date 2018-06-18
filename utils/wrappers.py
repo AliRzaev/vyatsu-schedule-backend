@@ -68,6 +68,12 @@ def content_type_json(route):
 
 
 def comparable_mixin(cls):
+    """
+    This decorator adds special methods for comparing instances of class 'cls'.
+    Class 'cls' have to define only one special method for comparing: __lt__,
+    other methods will be implemented with it
+    :param cls: class to be extended
+    """
     cls.__eq__ = lambda l, r: not l < r and not r < l
 
     cls.__ne__ = lambda l, r: l < r or r < l
