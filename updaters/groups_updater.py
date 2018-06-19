@@ -5,8 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 
-from models import groups_info
-
 URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html'
 
 SHORTHANDS = {
@@ -72,6 +70,8 @@ def get_groups_with_faculty(url: str) -> Iterable[Tuple[str, str, str]]:
 
 
 def update_groups(url: str):
+    from models import groups_info
+
     documents = [
         {
             "groupId": group_id,
