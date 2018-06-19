@@ -2,6 +2,7 @@ import re
 import requests
 from utils.wrappers import comparable_mixin
 from datetime import date
+from typing import Pattern, Dict, Tuple
 
 P_AUTUMN = re.compile(r'/reports/schedule/Group/(\d{4})_1_(\d{8})_(\d{8})\.pdf')
 P_SPRING = re.compile(r'/reports/schedule/Group/(\d{4})_2_(\d{8})_(\d{8})\.pdf')
@@ -12,7 +13,7 @@ URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zan
 @comparable_mixin
 class DateRange:
 
-    def __init__(self, first, second):
+    def __init__(self, first: str, second: str):
         self.first = first
         self.second = second
 
@@ -25,7 +26,7 @@ class DateRange:
         return self.first_date < other.first_date
 
 
-def get_date_ranges(pattern):
+def get_date_ranges(pattern: Pattern) -> Dict[str, Tuple[str, str]]:
     html = requests.get(URL).text
 
     date_ranges = dict()
