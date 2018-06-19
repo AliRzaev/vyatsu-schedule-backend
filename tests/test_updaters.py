@@ -6,26 +6,29 @@ import re
 
 class TestGroupsUpdater(TestCase):
 
+    @staticmethod
+    def _item_test(item):
+        faculty, group_name, group_id = item
+
+        if faculty is None or group_name is None or group_id is None:
+            return False
+
+        if group_name == '' or faculty == '':
+            return False
+
+        if not group_id.isnumeric():
+            return False
+
+        return True
+
     def test_groups_extracting(self):
-        def test_item(item):
-            faculty, group_name, group_id = item
-
-            if faculty is None or group_name is None or group_id is None:
-                return False
-
-            if group_name == '' or faculty == '':
-                return False
-
-            if not group_id.isnumeric():
-                return False
-
-            return True
-
         data = list(get_groups_with_faculty(URL))
 
         self.assertTrue(len(data) > 0, 'No groups were extracted')
         print(f'{len(data)} groups were extracted')
-        self.assertTrue(all(test_item(item) for item in data), 'Invalid data')
+        for item in data:
+            with self.subTest(item=item):
+                self.assertTrue(self._item_test(item), 'Invalid item')
 
 
 class TestRangesUpdaterArgs(TestCase):
@@ -87,7 +90,9 @@ class TestRangesUpdater(TestCase):
 
         self.assertTrue(len(data) > 0, 'No ranges were extracted')
         print(f"Season 'autumn': {len(data)} ranges")
-        self.assertTrue(all(self._item_test(item) for item in data.items()), 'Invalid data')
+        for item in data.items():
+            with self.subTest(item=item):
+                self.assertTrue(self._item_test(item), 'Invalid item')
 
     def test_ranges_extracting_spring(self):
 
@@ -95,4 +100,6 @@ class TestRangesUpdater(TestCase):
 
         self.assertTrue(len(data) > 0, 'No ranges were extracted')
         print(f"Season 'spring': {len(data)} ranges")
-        self.assertTrue(all(self._item_test(item) for item in data.items()), 'Invalid data')
+        for item in data.items():
+            with self.subTest(item=item):
+                self.assertTrue(self._item_test(item), 'Invalid item')
