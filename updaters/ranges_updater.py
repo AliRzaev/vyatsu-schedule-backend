@@ -1,5 +1,7 @@
 import re
 import requests
+import argparse
+from utils.date import get_current_season
 from utils.wrappers import comparable_mixin
 from datetime import date
 from typing import Pattern, Dict, Tuple
@@ -41,3 +43,61 @@ def get_date_ranges(pattern: Pattern) -> Dict[str, Tuple[str, str]]:
             date_ranges[group_id] = new_range
 
     return {group_id: (date_range.first, date_range.second) for group_id, date_range in date_ranges.items()}
+
+
+def update_date_ranges(season: str):
+    from models import schedule_ranges
+
+    if season == 'autumn':
+        data = get_date_ranges(P_AUTUMN)
+    elif season == 'spring':
+        data = get_date_ranges(P_SPRING)
+    else:
+        raise ValueError(f'Unknown season: {season}')
+
+    documents = [
+        {
+            'groupId': group_id,
+            'season': season,
+            'range': _range
+        } for group_id, _range in data.items()
+    ]
+    schedule_ranges.upsert_documents(documents)
+
+
+def build_arg_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-f',
+        '--force',
+        help='Update schedule ranges for ALL groups, for ALL seasons',
+        action='store_true'
+    )
+    parser.add_argument(
+        '-d',
+        '--drop-old',
+        help='Delete ALL schedule ranges from DB before updating',
+        action='store_true'
+    )
+
+    return parser
+
+
+if __name__ == '__main__':
+    from models import schedule_ranges
+
+    parser = build_arg_parser()
+    args = parser.parse_args()
+
+    force = args.force
+    drop_old = args.drop_old
+    season = get_current_season()
+
+    if drop_old:
+        schedule_ranges.delete_all()
+
+    if force:
+        update_date_ranges('autumn')
+        update_date_ranges('spring')
+    else:
+        update_date_ranges(season)
