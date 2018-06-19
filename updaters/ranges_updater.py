@@ -39,4 +39,4 @@ def get_date_ranges(pattern):
         elif new_range > date_ranges[group_id]:
             date_ranges[group_id] = new_range
 
-    return {group_id: [date_range.first, date_range.second] for group_id, date_range in date_ranges.items()}
+    return {group_id: (date_range.first, date_range.second) for group_id, date_range in date_ranges.items()}
