@@ -24,7 +24,7 @@ class TestGroupsUpdater(TestCase):
         data = list(get_groups_with_faculty(URL))
 
         self.assertTrue(len(data) > 0, 'No groups were extracted')
-        print(len(data))
+        print(f'{len(data)} groups were extracted')
         self.assertTrue(all(test_item(item) for item in data), 'Invalid data')
 
 
