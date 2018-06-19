@@ -14,7 +14,9 @@ Required environment variables must be set before running
 
 ### Tests
 
-Note: do not run tests with production db. It may delete all information
+**Be attentive!** Some test cases may **wipe out** data in your database.
+Please ensure that you run tests with database for testing,
+not for production
 
 `python -m unittest discover -s tests`
 

@@ -8,6 +8,11 @@ from json import load, loads
 
 
 class TestApiV2Groups(TestCase):
+    """
+    Be attentive! This test case may wipe out data in your database.
+    Please ensure that you run test case with database for testing,
+    not for production
+    """
 
     def setUp(self):
         self.app = app.test_client()
