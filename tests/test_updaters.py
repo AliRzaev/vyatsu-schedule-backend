@@ -1,5 +1,5 @@
 from unittest import TestCase
-from updaters.groups_updater import get_groups_with_faculty, URL
+from updaters.groups_updater import get_groups_with_faculty, URL, remove_parentheses
 from updaters.ranges_updater import build_arg_parser, get_date_ranges, P_SPRING, P_AUTUMN
 import re
 
@@ -29,6 +29,18 @@ class TestGroupsUpdater(TestCase):
         for item in data:
             with self.subTest(item=item):
                 self.assertTrue(self._item_test(item), 'Invalid item')
+
+    def test_remove_parentheses(self):
+        data = (
+            ('Юридический институт (факультет) (ОРУ)', 'Юридический институт'),
+            ('Юридический институт (факультет)', 'Юридический институт'),
+            ('Юридический институт', 'Юридический институт')
+        )
+
+        for item in data:
+            with self.subTest(item=item):
+                s = remove_parentheses(item[0])
+                self.assertTrue(s, item[1])
 
 
 class TestRangesUpdaterArgs(TestCase):
