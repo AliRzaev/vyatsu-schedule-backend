@@ -26,7 +26,14 @@ not for production
 
 ### Date ranges updater
 
-*TODO*
+```
+usage: python -m updaters.ranges_updater [-h] [-f] [-d]
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -f, --force     Update schedule ranges for ALL groups, for ALL seasons
+  -d, --drop-old  Delete ALL schedule ranges from DB before updating
+```
 
 ### Server
 
