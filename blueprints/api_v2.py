@@ -74,10 +74,17 @@ def get_schedule(group_id, season):
         _range = range_info['range']
 
     try:
+        w, d = date.get_date_indexes(_range[0])
         return {
             'group': group_name,
-            'date_range': _range,
-            'today': date.get_date_indexes(_range[0]),
+            'date_range': {
+                'begin': _range[0],
+                'end': _range[1]
+            },
+            'today': {
+                'week': w,
+                'dayOfWeek': d
+            },
             'weeks': parse_schedule(group_id, season_key, _range)
         }
     except ParseException as ex:
