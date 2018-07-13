@@ -75,6 +75,7 @@ def get_schedule(group_id, season):
 
     try:
         w, d = date.get_date_indexes(_range[0])
+        today = date.get_date_by_indexes(_range[0], w, d)
         return {
             'group': group_name,
             'date_range': {
@@ -83,7 +84,8 @@ def get_schedule(group_id, season):
             },
             'today': {
                 'week': w,
-                'dayOfWeek': d
+                'dayOfWeek': d,
+                'date': today
             },
             'weeks': parse_schedule(group_id, season_key, _range)
         }
