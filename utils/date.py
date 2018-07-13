@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Tuple
 
 
@@ -46,3 +46,24 @@ def get_current_season(today: date = None) -> str:
         return 'autumn'
     else:
         return 'spring'
+
+
+# TODO: write unit tests
+def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
+    """
+    Get the date that corresponds given day and week indexes according to the begin date - first_date
+    :param first_date: date string of the following format: 'ddMMyyyy'
+    :param week_index: week index from 0 to 1
+    :param day_index: day index, from 0 to 6
+    :return: date string of the following format: 'ddMMyyyy'
+    """
+    day_offset = week_index * 7 + day_index
+    delta = timedelta(days=day_offset)
+
+    d = int(first_date[:2])
+    m = int(first_date[2:4])
+    y = int(first_date[4:])
+    begin = date(y, m, d)
+    begin += delta
+
+    return '{d:02}{m:02}{y:04}'.format(d=begin.day, m=begin.month, y=begin.year)
