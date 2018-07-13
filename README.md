@@ -14,11 +14,17 @@ Required environment variables must be set before running
 
 ### Tests
 
+Unit tests
+
+`python -m unittest discover -s tests`
+
+API integration tests (MONGODB_URI env variable must be defined)
+
 **Be attentive!** Some test cases may **wipe out** data in your database.
 Please ensure that you run tests with database for testing,
 not for production
 
-`python -m unittest discover -s tests`
+`python -m unittest discover -s tests -p it*.py`
 
 ### Groups info updater
 
