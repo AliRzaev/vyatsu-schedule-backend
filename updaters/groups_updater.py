@@ -49,7 +49,7 @@ def get_groups_dict(tag: Tag) -> Dict[str, str]:
 def get_faculty_name_with_shorthand(faculty_name: str) -> str:
     stripped_name = remove_parentheses(faculty_name)
     if faculty_name in SHORTHANDS:
-        return '({}) {}'.format(SHORTHANDS[faculty_name], stripped_name)
+        return '{} ({})'.format(SHORTHANDS[faculty_name], stripped_name)
     else:
         return stripped_name
 
