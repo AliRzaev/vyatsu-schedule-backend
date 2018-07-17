@@ -1,4 +1,4 @@
-from utils.db_config import get_collection
+from utils.mongodb_config import get_collection
 from typing import Optional, List
 from pymongo import ReplaceOne
 
