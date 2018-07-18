@@ -3,7 +3,7 @@ from flask import Blueprint
 from models import groups_info, schedule_ranges
 from utils import date
 from utils.responses import Error
-from utils.schedule_parsing import parse_schedule, ParseException
+from utils.schedule import fetch_schedule, ParseException
 from utils.transforming.api_v2 import groups_info_to_list
 from utils.wrappers import on_exception, content_type_json
 
@@ -87,7 +87,7 @@ def get_schedule(group_id, season):
                 'dayOfWeek': d,
                 'date': today
             },
-            'weeks': parse_schedule(group_id, season_key, _range)
+            'weeks': fetch_schedule(group_id, season_key, _range)
         }
     except ParseException as ex:
         return Error(422, str(ex))

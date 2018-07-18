@@ -11,7 +11,7 @@ class ParseException(Exception):
     pass
 
 
-def parse_schedule(group_id: str, season_key: str, _range: List[str]) -> dict:
+def fetch_schedule(group_id: str, season_key: str, _range: List[str]) -> dict:
     api_url = _PARSE_API_URL + '/api/v1/parse_pdf'
     pdf_url = _SCHEDULE_URL_TEMPLATE.format(group_id, season_key, _range[0], _range[1])
 
