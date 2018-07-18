@@ -27,7 +27,7 @@ class KeyValueStorage:
 
         self._collection.update_one(
             filter={'key': key},
-            update={'key': key, 'value': value},
+            update={'$set': {'key': key, 'value': value}},
             upsert=True
         )
 
