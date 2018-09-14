@@ -62,7 +62,8 @@ def update_date_ranges(season: str):
             'range': _range
         } for group_id, _range in data.items()
     ]
-    schedule_ranges.upsert_documents(documents)
+    if len(documents) != 0:
+        schedule_ranges.upsert_documents(documents)
 
 
 def build_arg_parser():
