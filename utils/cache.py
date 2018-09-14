@@ -1,40 +1,76 @@
-from typing import Any
+from typing import Any, Optional
+from collections import namedtuple
 
-from pymongo.collection import Collection
+from pymongo.collection import Collection as MongoCollection
 
 
-class KeyValueStorage:
+Item = namedtuple('Item', ['key', 'value'])
 
-    def __init__(self, collection: Collection):
+
+class CollectionAdapter:
+
+    def find_one(self, key: str) -> Optional[Item]:
+        pass
+
+    def update_one(self, key: str, value: Any):
+        pass
+
+    def delete_one(self, key: str):
+        pass
+
+
+class MongoCollectionAdapter(CollectionAdapter):
+
+    def __init__(self, collection: MongoCollection):
         self._collection = collection
 
-    def __getitem__(self, key: str) -> Any:
-        if not isinstance(key, str):
-            raise TypeError('Key must be a string')
-
+    def find_one(self, key: str) -> Optional[Item]:
         document = self._collection.find_one({
             'key': key
         })
 
         if document is None:
-            raise KeyError(key)
+            return None
         else:
-            return document['value']
+            return Item(document['key'], document['value'])
 
-    def __setitem__(self, key: str, value: Any):
-        if not isinstance(key, str):
-            raise TypeError('Key must be a string')
-
+    def update_one(self, key: str, value: Any):
         self._collection.update_one(
             filter={'key': key},
             update={'$set': {'key': key, 'value': value}},
             upsert=True
         )
 
+    def delete_one(self, key: str):
+        self._collection.delete_one({
+            'key': key
+        })
+
+
+class KeyValueStorage:
+
+    def __init__(self, collection: CollectionAdapter):
+        self._collection = collection
+
+    def __getitem__(self, key: str) -> Any:
+        if not isinstance(key, str):
+            raise TypeError('Key must be a string')
+
+        document = self._collection.find_one(key)
+
+        if document is None:
+            raise KeyError(key)
+        else:
+            return document.value
+
+    def __setitem__(self, key: str, value: Any):
+        if not isinstance(key, str):
+            raise TypeError('Key must be a string')
+
+        self._collection.update_one(key, value)
+
     def __delitem__(self, key: str):
         if not isinstance(key, str):
             raise TypeError('Key must be a string')
 
-        self._collection.delete_one({
-            'key': key
-        })
+        self._collection.delete_one(key)

@@ -1,14 +1,14 @@
 from os import getenv
 from typing import List
 import requests
-from utils.cache import KeyValueStorage
+from utils.cache import KeyValueStorage, MongoCollectionAdapter
 from utils.mongodb_config import get_collection
 
 
 _PARSE_API_URL = getenv('PARSE_API_URL')
 _SCHEDULE_URL_TEMPLATE = 'https://www.vyatsu.ru/reports/schedule/Group/{}_{}_{}_{}.pdf'
 
-_STORAGE = KeyValueStorage(get_collection('kv_storage'))
+_STORAGE = KeyValueStorage(MongoCollectionAdapter(get_collection('kv_storage')))
 
 
 class ParseException(Exception):

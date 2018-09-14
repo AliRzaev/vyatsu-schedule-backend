@@ -74,9 +74,9 @@ class TestDateIndexes(TestCase):
 class TestCurrentSeason(TestCase):
 
     def test_autumn_boundaries(self):
-        season = get_current_season(date(2018, 9, 1))
+        season = get_current_season(date(2018, 8, 1))
 
-        self.assertEqual(season, 'autumn', '1st September belongs to autumn season')
+        self.assertEqual(season, 'autumn', '1st August belongs to autumn season')
 
         season = get_current_season(date(2018, 12, 31))
 
@@ -87,6 +87,6 @@ class TestCurrentSeason(TestCase):
 
         self.assertEqual(season, 'spring', '1st January belongs to spring season')
 
-        season = get_current_season(date(2018, 8, 31))
+        season = get_current_season(date(2018, 7, 31))
 
-        self.assertEqual(season, 'spring', '31st August belongs to spring season')
+        self.assertEqual(season, 'spring', '31st July belongs to spring season')

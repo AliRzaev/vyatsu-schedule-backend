@@ -6,8 +6,8 @@ from utils.wrappers import comparable_mixin
 from datetime import date
 from typing import Pattern, Dict, Tuple
 
-P_AUTUMN = re.compile(r'/reports/schedule/Group/(\d{4,5})_1_(\d{8})_(\d{8})\.pdf')
-P_SPRING = re.compile(r'/reports/schedule/Group/(\d{4,5})_2_(\d{8})_(\d{8})\.pdf')
+P_AUTUMN = re.compile(r'/reports/schedule/Group/(\d{4,})_1_(\d{8})_(\d{8})\.pdf')
+P_SPRING = re.compile(r'/reports/schedule/Group/(\d{4,})_2_(\d{8})_(\d{8})\.pdf')
 
 URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html'
 
@@ -62,7 +62,8 @@ def update_date_ranges(season: str):
             'range': _range
         } for group_id, _range in data.items()
     ]
-    schedule_ranges.upsert_documents(documents)
+    if len(documents) != 0:
+        schedule_ranges.upsert_documents(documents)
 
 
 def build_arg_parser():
