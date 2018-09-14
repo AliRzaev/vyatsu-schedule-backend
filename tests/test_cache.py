@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 from unittest import TestCase
-from utils.cache import KeyValueStorage, CollectionAdapter
+from utils.cache import KeyValueStorage, CollectionAdapter, Item
 
 
 class DummyCollectionAdapter(CollectionAdapter):
@@ -8,16 +8,13 @@ class DummyCollectionAdapter(CollectionAdapter):
     def __init__(self):
         self.dict_ = dict()
 
-    def find_one(self, key: str) -> Any:
+    def find_one(self, key: str) -> Optional[Item]:
         document = self.dict_.get(key, None)
 
         if document is None:
             return None
         else:
-            return {
-                'key': key,
-                'value': document
-            }
+            return Item(key, document)
 
     def update_one(self, key: str, value: Any):
         self.dict_[key] = value

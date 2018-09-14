@@ -1,11 +1,15 @@
-from typing import Any
+from typing import Any, Optional
+from collections import namedtuple
 
 from pymongo.collection import Collection as MongoCollection
 
 
+Item = namedtuple('Item', ['key', 'value'])
+
+
 class CollectionAdapter:
 
-    def find_one(self, key: str) -> Any:
+    def find_one(self, key: str) -> Optional[Item]:
         pass
 
     def update_one(self, key: str, value: Any):
@@ -20,10 +24,15 @@ class MongoCollectionAdapter(CollectionAdapter):
     def __init__(self, collection: MongoCollection):
         self._collection = collection
 
-    def find_one(self, key: str) -> Any:
-        return self._collection.find_one({
+    def find_one(self, key: str) -> Optional[Item]:
+        document = self._collection.find_one({
             'key': key
         })
+
+        if document is None:
+            return None
+        else:
+            return Item(document['key'], document['value'])
 
     def update_one(self, key: str, value: Any):
         self._collection.update_one(
@@ -52,7 +61,7 @@ class KeyValueStorage:
         if document is None:
             raise KeyError(key)
         else:
-            return document['value']
+            return document.value
 
     def __setitem__(self, key: str, value: Any):
         if not isinstance(key, str):
