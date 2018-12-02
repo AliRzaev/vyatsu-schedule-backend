@@ -1,6 +1,6 @@
 from os import getenv
 
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_cors import CORS
 
 from blueprints.api_v1 import api_v1_blueprint
@@ -26,6 +26,12 @@ app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
 @app.before_request
 def logs_to_mongo():  # logs each request into MongoDB
     logs.insert_one(request.full_path)
+
+
+@app.after_request
+def set_max_age(response: Response):
+    response.headers.set('max_age', 43200)
+    return response
 
 
 if __name__ == '__main__':
