@@ -38,7 +38,7 @@ if __name__ != '__main__':  # logs to console in production environment
 
 @app.after_request
 def set_max_age(response: Response):
-    response.headers.set('max_age', 43200)
+    response.headers.set('Cache-Control', 'max-age=43200')
     return response
 
 
