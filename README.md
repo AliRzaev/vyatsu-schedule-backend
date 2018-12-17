@@ -12,7 +12,7 @@ Designed for [Vyatka State University](https://www.vyatsu.ru)
 
 `MONGODB_URI=<uri>` - URI to MongoDB database of format `mongodb://<user>:<password>@<host>:<port>/<database>`. You have to specify the database name.
 
-`PORT` - port on which listen requests, default `8080`.
+`PORT` - port on which listen requests, default `80`.
 
 `PARSE_API_URL` - URL to [VyatSU schedule PDF parser](https://github.com/AliRzaev/vyatsu_pdf_parser) service.
 

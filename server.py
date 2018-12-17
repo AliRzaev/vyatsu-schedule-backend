@@ -9,7 +9,7 @@ from blueprints.api_v2 import api_v2_blueprint
 from models import logs
 from utils.logging import get_logger
 
-PORT = getenv('PORT', '8080')
+PORT = getenv('PORT', '80')
 
 app = Flask(__name__)
 logger = get_logger(__name__)
