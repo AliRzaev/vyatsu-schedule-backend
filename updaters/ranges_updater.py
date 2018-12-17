@@ -71,13 +71,13 @@ def build_arg_parser():
     parser.add_argument(
         '-f',
         '--force',
-        help='Update schedule ranges for ALL groups, for ALL seasons',
+        help='update schedule ranges for ALL groups, for ALL seasons',
         action='store_true'
     )
     parser.add_argument(
         '-d',
         '--drop-old',
-        help='Delete ALL schedule ranges from DB before updating',
+        help='delete ALL schedule ranges from database before updating',
         action='store_true'
     )
 
