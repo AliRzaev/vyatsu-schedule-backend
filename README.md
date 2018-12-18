@@ -10,7 +10,7 @@ Designed for [Vyatka State University](https://www.vyatsu.ru)
 
 ### Required environment variables
 
-`MONGODB_URI=<uri>` - URI to MongoDB database of format `mongodb://<user>:<password>@<host>:<port>/<database>`. You have to specify the database name.
+`MONGODB_URI` - URI to MongoDB database of format `mongodb://<user>:<password>@<host>:<port>/<database>`. You have to specify the database name.
 
 `PORT` - port on which listen requests, default `80`.
 
