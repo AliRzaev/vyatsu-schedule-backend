@@ -20,6 +20,15 @@ class CollectionAdapter:
 
 
 class MongoCollectionAdapter(CollectionAdapter):
+    """
+    A collection adapter that uses MongoDB collection as a storage.
+
+    Document scheme:
+    {
+      'key': string,
+      'value': any
+    }
+    """
 
     def __init__(self, collection: MongoCollection):
         self._collection = collection
@@ -48,6 +57,9 @@ class MongoCollectionAdapter(CollectionAdapter):
 
 
 class KeyValueStorage:
+    """
+    Simple key-value storage that can use various backends for storing items.
+    """
 
     def __init__(self, collection: CollectionAdapter):
         self._collection = collection
