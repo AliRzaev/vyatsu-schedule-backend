@@ -1,5 +1,7 @@
 # VyatSU schedule API server
 
+[![Build Status](https://travis-ci.org/AliRzaev/vyatsu_schedule_api_server.svg?branch=master)](https://travis-ci.org/AliRzaev/vyatsu_schedule_api_server)
+
 This application provides RESTful API for viewing group schedules.
 
 API documentation can be found here: [vyatsuschedule.github.io/docs](https://vyatsuschedule.github.io/docs)
