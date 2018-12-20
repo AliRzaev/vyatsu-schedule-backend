@@ -1,8 +1,25 @@
+import requests
+
 from re import sub, compile
-from typing import Dict, Union, Iterable, Optional
+from typing import Dict, Union, Iterable, Optional, List
+from datetime import timedelta
+from collections import namedtuple
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
+
+from utils.cache import KeyValueStorage, RedisCollectionAdapter
+from utils.redis_config import get_instance
+
+GROUPS_INFO_URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html'
+
+CACHE_PREFIX = __name__
+
+_GROUPS_INFO_CACHE = KeyValueStorage(
+    RedisCollectionAdapter(get_instance(), timedelta(days=1)))
+
+_GROUP_NAMES_CACHE = KeyValueStorage(
+    RedisCollectionAdapter(get_instance()))
 
 SHORTHANDS = {
     'Институт биологии и биотехнологии (факультет)(ОРУ)': 'ИББТ',
@@ -20,6 +37,9 @@ SHORTHANDS = {
     'Электротехнический факультет (ОРУ)': 'ЭТФ',
     'Юридический институт (факультет) (ОРУ)': 'ЮИ'
 }
+
+
+GroupInfo = namedtuple('GroupInfo', ['group_id', 'group', 'faculty'])
 
 
 def find_links_if(tag: Tag) -> bool:
@@ -51,7 +71,7 @@ def get_faculty_name_with_shorthand(faculty_name: str) -> str:
         return stripped_name
 
 
-def get_groups_info(html: str) -> Iterable[Dict[str, str]]:
+def parse_groups_info_page(html: str) -> Iterable[GroupInfo]:
     document = BeautifulSoup(html, 'html.parser')
 
     tables = document \
@@ -63,16 +83,43 @@ def get_groups_info(html: str) -> Iterable[Dict[str, str]]:
             faculty_name = get_faculty_name_with_shorthand(faculty_name)
 
             for group_name, group_id in get_groups_dict(faculty).items():
-                yield {
-                    "groupId": group_id,
-                    "group": group_name,
-                    "faculty": faculty_name
-                }
+                yield GroupInfo(group_id, group_name, faculty_name)
 
 
-def get_group_name(html: str, group_id: str) -> Optional[str]:
-    for item in get_groups_info(html):
-        if item['groupId'] == group_id:
-            return item['group']
-    else:
-        return None
+def get_groups_info() -> List[GroupInfo]:
+    key = f'{CACHE_PREFIX}_groups_info_list'
+    try:
+        cached = _GROUPS_INFO_CACHE[key]
+        return cached
+    except KeyError:
+        page = requests.get(GROUPS_INFO_URL).text
+        data = sorted(parse_groups_info_page(page))
+        _GROUPS_INFO_CACHE[key] = data
+        return data
+
+
+def get_groups_info_as_dict() -> Dict[str, GroupInfo]:
+    key = f'{CACHE_PREFIX}_groups_info_dict'
+    try:
+        cached = _GROUPS_INFO_CACHE[key]
+        return cached
+    except KeyError:
+        page = requests.get(GROUPS_INFO_URL).text
+        data = {item.group_id: item for item in parse_groups_info_page(page)}
+        _GROUPS_INFO_CACHE[key] = data
+        return data
+
+
+def get_group_name(group_id: str) -> Optional[str]:
+    key = f'{CACHE_PREFIX}_group_name_{group_id}'
+    try:
+        cached = _GROUP_NAMES_CACHE[key]
+        return cached
+    except KeyError:
+        groups_info = get_groups_info_as_dict()
+        if group_id in groups_info:
+            group_name = groups_info[group_id].group
+            _GROUP_NAMES_CACHE[key] = group_name
+            return group_name
+        else:
+            return None

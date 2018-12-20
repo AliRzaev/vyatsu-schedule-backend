@@ -14,7 +14,8 @@ class TestGroupsInfo(TestCase):
         with open(
                 'tests/resources/groups_info.json', 'r',
                 encoding='utf-8') as file:
-            self.info = load(file)
+            self.info = sorted((GroupInfo(item['groupId'], item['group'], item['faculty'])
+                                for item in load(file)))
 
     def test_remove_parentheses(self):
         data = (
@@ -29,7 +30,7 @@ class TestGroupsInfo(TestCase):
                 self.assertTrue(s, item[1])
 
     def test_groups_info(self):
-        actual = sorted(get_groups_info(self.page), key=lambda x: x['groupId'])
-        expected = sorted(self.info, key=lambda x: x['groupId'])
+        actual = sorted(parse_groups_info_page(self.page))
+        expected = self.info
 
         self.assertEqual(actual, expected)
