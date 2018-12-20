@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from server import app
 from utils.groups_info import GROUPS_INFO_URL
-from utils.redis_config import get_instance
+from config.redis import get_instance
 
 
 class TestApiV2Groups(TestCase):

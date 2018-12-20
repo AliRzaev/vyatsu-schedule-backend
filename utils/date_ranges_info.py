@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from typing import Tuple, Optional
 
 from utils.wrappers import comparable_mixin
-from utils.redis_config import get_instance
+from config.redis import get_instance
 from utils.cache import KeyValueStorage, RedisCollectionAdapter
 from utils.groups_info import GROUPS_INFO_URL
 

@@ -4,8 +4,8 @@ from time import sleep
 from datetime import timedelta
 
 from utils.cache import MongoCollectionAdapter, RedisCollectionAdapter
-from utils.mongodb_config import get_collection
-from utils.redis_config import get_instance
+from config.mongodb import get_collection
+from config.redis import get_instance
 
 
 class TestMongoCollectionAdapter(TestCase):

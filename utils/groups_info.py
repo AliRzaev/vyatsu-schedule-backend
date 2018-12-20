@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 
 from utils.cache import KeyValueStorage, RedisCollectionAdapter
-from utils.redis_config import get_instance
+from config.redis import get_instance
 
 GROUPS_INFO_URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html'
 

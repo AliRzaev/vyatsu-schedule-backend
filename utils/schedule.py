@@ -5,7 +5,7 @@ from typing import List
 import requests
 
 from utils.cache import KeyValueStorage, RedisCollectionAdapter
-from utils.redis_config import get_instance
+from config.redis import get_instance
 
 CACHE_PREFIX = __name__
 
