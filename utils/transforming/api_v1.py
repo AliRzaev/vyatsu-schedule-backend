@@ -2,8 +2,14 @@ from typing import List
 from utils.groups_info import GroupInfo
 
 
-# TODO: Add docstring
-def groups_info_to_dict(documents: List[GroupInfo], by_faculty: bool = False) -> dict:
+def groups_info_to_dict(documents: List[GroupInfo],
+                        by_faculty: bool = False) -> dict:
+    """
+    Transform groups information into form specified by API 2
+    :param documents: list of group information items
+    :param by_faculty: group student groups by faculty
+    :return: groups information as JSON-like object
+    """
     if by_faculty:
         dict_ = dict()
         for document in documents:
