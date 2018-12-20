@@ -1,11 +1,11 @@
 from flask import Blueprint
 
-from models import groups_info, schedule_ranges
 from utils import date
 from utils.responses import Error
 from utils.schedule import fetch_schedule, ParseException
 from utils.transforming.api_v2 import groups_info_to_list
 from utils.wrappers import on_exception, content_type_json
+from utils import groups_info, date_ranges_info
 
 api_v2_blueprint = Blueprint('api_v2', __name__)
 
@@ -15,7 +15,7 @@ api_v2_blueprint = Blueprint('api_v2', __name__)
 @on_exception(500)
 @content_type_json
 def get_groups_list():
-    return groups_info_to_list(groups_info.find_all())
+    return groups_info_to_list(groups_info.get_groups_info())
 
 
 @api_v2_blueprint.route('/groups/by_faculty.json', methods=['GET'])  # backward compatibility
@@ -23,7 +23,7 @@ def get_groups_list():
 @on_exception(500)
 @content_type_json
 def get_groups_by_faculty():
-    return groups_info_to_list(groups_info.find_all(), by_faculty=True)
+    return groups_info_to_list(groups_info.get_groups_info(), by_faculty=True)
 
 
 @api_v2_blueprint.route('/calls', methods=['GET'])
@@ -61,33 +61,29 @@ def get_schedule(group_id, season):
     else:
         return Error(422, 'INVALID_SEASON')
 
-    group_info = groups_info.find_group_by_id(group_id)
-    if group_info is None:
+    group_name = groups_info.get_group_name(group_id)
+    if group_name is None:
         return Error(422, 'NO_SUCH_GROUP')
-    else:
-        group_name = group_info['group']
 
-    range_info = schedule_ranges.find_by_group_and_season(group_id, season)
-    if range_info is None:
+    range_ = date_ranges_info.get_date_range(group_id, season)
+    if range_ is None:
         return Error(422, 'NO_SUCH_SCHEDULE')
-    else:
-        _range = range_info['range']
 
     try:
-        w, d = date.get_date_indexes(_range[0])
-        today = date.get_date_by_indexes(_range[0], w, d)
+        w, d = date.get_date_indexes(range_[0])
+        today = date.get_date_by_indexes(range_[0], w, d)
         return {
             'group': group_name,
             'date_range': {
-                'begin': _range[0],
-                'end': _range[1]
+                'begin': range_[0],
+                'end': range_[1]
             },
             'today': {
                 'week': w,
                 'dayOfWeek': d,
                 'date': today
             },
-            'weeks': fetch_schedule(group_id, season_key, _range)
+            'weeks': fetch_schedule(group_id, season_key, range_)
         }
     except ParseException as ex:
         return Error(422, str(ex))

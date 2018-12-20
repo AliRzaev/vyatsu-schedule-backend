@@ -1,10 +1,11 @@
+import responses
+
+from json import load, loads
 from unittest import TestCase
 
 from server import app
-
-from models import groups_info
-
-from json import load, loads
+from utils.groups_info import GROUPS_INFO_URL
+from utils.redis_config import get_instance
 
 
 class TestApiV1Groups(TestCase):
@@ -18,40 +19,46 @@ class TestApiV1Groups(TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
-        groups_info.delete_all()
-
-        with open('tests/resources/test_groups_data.json', 'r', encoding='utf-8') as file:
-            data = load(file)
-
-        groups_info.upsert_documents([
-            {
-                'groupId': item['id'],
-                'group': item['name'],
-                'faculty': item['faculty']
-            } for item in data
-        ])
+        with open('tests/resources/html/groups_info_page.html',
+                  'r', encoding='utf-8') as file:
+            self.page = file.read()
+        with open('tests/resources/v1/test_groups_list.json',
+                  'r', encoding='utf-8') as file:
+            self.groups_list = load(file)
+        with open('tests/resources/v1/test_groups_by_faculty.json',
+                  'r', encoding='utf-8') as file:
+            self.groups_by_faculty = load(file)
 
     def tearDown(self):
-        groups_info.delete_all()
+        self.clear_cache()
 
+    @staticmethod
+    def clear_cache():
+        get_instance().flushall()
+
+    @responses.activate
     def test_groups_list(self):
+        self.clear_cache()
+        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
+                      content_type='text/html; charset=utf8')
+
         response = self.app.get('/api/v1/groups/list')
-        data = loads(response.data)
+        actual = loads(response.data)
+        expected = self.groups_list
 
-        with open('tests/resources/v1/test_groups_list.json', 'r', encoding='utf-8') as file:
-            expected_data = load(file)
+        self.assertEqual(actual, expected, 'Invalid data')
 
-        self.assertEqual(data, expected_data, 'Invalid data')
-
+    @responses.activate
     def test_groups_by_faculty(self):
+        self.clear_cache()
+        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
+                      content_type='text/html; charset=utf8')
 
         response = self.app.get('/api/v1/groups/by_faculty')
-        data = loads(response.data)
+        actual = loads(response.data)
+        expected = self.groups_by_faculty
 
-        with open('tests/resources/v1/test_groups_by_faculty.json', 'r', encoding='utf-8') as file:
-            expected_data = load(file)
-
-        self.assertEqual(data, expected_data, 'Invalid data')
+        self.assertEqual(actual, expected, 'Invalid data')
 
 
 class TestApiV1Calls(TestCase):
@@ -60,10 +67,13 @@ class TestApiV1Calls(TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
+        with open('tests/resources/v1/test_calls.json',
+                  'r', encoding='utf-8') as file:
+            self.calls = load(file)
+
     def test_calls(self):
         response = self.app.get('/api/v1/calls')
+        actual = loads(response.data)
+        expected = self.calls
 
-        with open('tests/resources/v1/test_calls.json', 'r', encoding='utf-8') as file:
-            data = load(file)
-
-        self.assertEqual(loads(response.data), data, 'Invalid data')
+        self.assertEqual(actual, expected, 'Invalid data')
