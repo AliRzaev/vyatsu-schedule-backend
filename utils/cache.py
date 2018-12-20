@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from pymongo.collection import Collection as MongoCollection
 from redis import Redis
-from json import dumps, loads
+from pickle import dumps, loads
 
 
 Item = namedtuple('Item', ['key', 'value'])
@@ -62,7 +62,7 @@ class MongoCollectionAdapter(CollectionAdapter):
 class RedisCollectionAdapter(CollectionAdapter):
     """
     A collection adapter that uses Redis database as a storage.
-    Values are stored as serialized JSON objects.
+    Values are stored as serialized Python objects
     """
 
     def __init__(self, redis_instance: Redis, expires: timedelta = None):

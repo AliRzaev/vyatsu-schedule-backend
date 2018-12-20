@@ -1,5 +1,5 @@
 from unittest import TestCase
-from json import dumps, loads
+from pickle import dumps, loads
 from time import sleep
 from datetime import timedelta
 
