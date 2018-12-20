@@ -1,7 +1,16 @@
 language: python
 python:
   - "3.6"
+env:
+  - REDIS_URI=redis://localhost:6379/0 MONGODB_URI=mongodb://travis:password@localhost:27017/database
+services:
+  - mongodb
+  - redis-server
 install:
   - pip install -r requirements.txt
+before_script:
+  - sleep 15
+  - mongo database --eval 'db.createUser({user:"travis",pwd:"password",roles:["readWrite"]});'
 script:
   - python -m unittest discover -s tests
+  - python -m unittest discover -s tests -p it*.py
