@@ -1,14 +1,20 @@
+from datetime import timedelta
 from os import getenv
 from typing import List
-import requests
-from utils.cache import KeyValueStorage, MongoCollectionAdapter
-from utils.mongodb_config import get_collection
 
+import requests
+
+from utils.cache import KeyValueStorage, RedisCollectionAdapter
+from utils.redis_config import get_instance
+
+CACHE_PREFIX = __name__
 
 _PARSE_API_URL = getenv('PARSE_API_URL')
+
 _SCHEDULE_URL_TEMPLATE = 'https://www.vyatsu.ru/reports/schedule/Group/{}_{}_{}_{}.pdf'
 
-_STORAGE = KeyValueStorage(MongoCollectionAdapter(get_collection('kv_storage')))
+_SCHEDULE_CACHE = KeyValueStorage(
+    RedisCollectionAdapter(get_instance(), timedelta(days=14)))
 
 
 class ParseException(Exception):
@@ -33,9 +39,9 @@ def fetch_schedule_from_service(group_id: str, season_key: str, _range: List[str
 
 
 def fetch_schedule(group_id: str, season_key: str, _range: List[str]) -> dict:
-    schedule_key = f'schedule_{group_id}_{season_key}'
+    schedule_key = f'{CACHE_PREFIX}_schedule_{group_id}_{season_key}'
     try:
-        cached_schedule = _STORAGE[schedule_key]
+        cached_schedule = _SCHEDULE_CACHE[schedule_key]
         if cached_schedule['range'] != _range:
             raise Exception('Outdated schedule')
         else:
@@ -43,7 +49,7 @@ def fetch_schedule(group_id: str, season_key: str, _range: List[str]) -> dict:
     except (KeyError, Exception):
         actual_schedule = fetch_schedule_from_service(group_id, season_key, _range)
 
-        _STORAGE[schedule_key] = {
+        _SCHEDULE_CACHE[schedule_key] = {
             'schedule': actual_schedule,
             'range': _range
         }
