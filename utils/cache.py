@@ -67,7 +67,7 @@ class RedisCollectionAdapter(CollectionAdapter):
 
     def __init__(self, redis_instance: Redis, expires: timedelta = None):
         self._redis = redis_instance
-        self._expires = expires.seconds if expires is not None else None
+        self._expires = int(expires.total_seconds()) if expires is not None else None
 
     def find_one(self, key: str) -> Optional[Item]:
         value = self._redis.get(key)
