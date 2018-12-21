@@ -24,13 +24,13 @@ class TestApiV2Groups(TestCase):
             self.page = file.read()
         with open('tests/resources/v2/test_groups_list.json',
                   'r', encoding='utf-8') as file:
-            self.groups_list = sorted(load(file), key=lambda x: x['id'])
+            self.groups_list = sorted(load(file), key=lambda x: x['name'])
         with open('tests/resources/v2/test_groups_by_faculty.json',
                   'r', encoding='utf-8') as file:
             self.groups_by_faculty = load(file)
             self.groups_by_faculty.sort(key=lambda x: x['faculty'])
             for faculty in self.groups_by_faculty:
-                faculty['groups'].sort(key=lambda x: x['id'])
+                faculty['groups'].sort(key=lambda x: x['name'])
 
     def tearDown(self):
         self.clear_cache()
@@ -46,7 +46,7 @@ class TestApiV2Groups(TestCase):
                       content_type='text/html; charset=utf8')
 
         response = self.app.get('/api/v2/groups/list')
-        actual = sorted(loads(response.data), key=lambda x: x['id'])
+        actual = loads(response.data)
         expected = self.groups_list
 
         self.assertEqual(actual, expected, 'Invalid data')
@@ -59,9 +59,6 @@ class TestApiV2Groups(TestCase):
 
         response = self.app.get('/api/v2/groups/by_faculty')
         actual = loads(response.data)
-        actual.sort(key=lambda x: x['faculty'])
-        for faculty in actual:
-            faculty['groups'].sort(key=lambda x: x['id'])
         expected = self.groups_by_faculty
 
         self.assertEqual(actual, expected, 'Invalid data')

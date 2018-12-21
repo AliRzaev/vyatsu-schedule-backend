@@ -5,7 +5,7 @@ from utils.groups_info import GroupInfo
 def groups_info_to_dict(documents: List[GroupInfo],
                         by_faculty: bool = False) -> dict:
     """
-    Transform groups information into form specified by API 2
+    Transform groups information into form specified by API 1
     :param documents: list of group information items
     :param by_faculty: group student groups by faculty
     :return: groups information as JSON-like object

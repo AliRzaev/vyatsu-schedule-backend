@@ -93,7 +93,7 @@ def get_groups_info() -> List[GroupInfo]:
         return cached
     except KeyError:
         page = requests.get(GROUPS_INFO_URL).text
-        data = sorted(parse_groups_info_page(page))
+        data = list(parse_groups_info_page(page))
         _GROUPS_INFO_CACHE[key] = data
         return data
 
