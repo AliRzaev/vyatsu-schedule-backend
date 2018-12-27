@@ -1,8 +1,11 @@
-from typing import List, Dict, Iterable
+from functools import lru_cache
+from typing import List, Dict, Iterable, Tuple
+
 from utils.groups_info import GroupInfo
 
 
-def groups_info_to_list(documents: List[GroupInfo],
+@lru_cache()
+def groups_info_to_list(documents: Tuple[GroupInfo, ...],
                         by_faculty: bool = False) -> List[dict]:
     """
     Transform groups information into form specified by API 2
@@ -18,7 +21,7 @@ def groups_info_to_list(documents: List[GroupInfo],
         }
 
     def filter_by_faculty(faculty: str,
-                          items: List[GroupInfo]) -> Iterable[GroupInfo]:
+                          items: Tuple[GroupInfo, ...]) -> Iterable[GroupInfo]:
         return filter(lambda info: info.faculty == faculty, items)
 
     if by_faculty:

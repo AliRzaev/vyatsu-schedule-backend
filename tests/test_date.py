@@ -1,6 +1,7 @@
 from unittest import TestCase
 from datetime import date
-from utils.date import get_date_indexes, get_current_season
+from utils.date import get_date_indexes, get_current_season, as_date, \
+    get_date_of_weekday
 
 
 class TestDateIndexes(TestCase):
@@ -90,3 +91,49 @@ class TestCurrentSeason(TestCase):
         season = get_current_season(date(2018, 7, 31))
 
         self.assertEqual(season, 'spring', '31st July belongs to spring season')
+
+
+class TestAsDate(TestCase):
+
+    def test_as_date(self):
+        date_str = '31102018'
+
+        actual = as_date(date_str)
+        expected = date(2018, 10, 31)
+
+        self.assertEqual(actual, expected, 'Date must be date(2018, 10, 31)')
+
+    def test_as_date_invalid_str(self):
+        date_str = '31112018'
+
+        self.assertRaises(ValueError, as_date, date_str)
+
+
+class TestDateOfWeekday(TestCase):
+
+    def test_weekday_if_today(self):
+        today = date(2018, 12, 27)
+        weekday = 3  # Thursday
+
+        actual = get_date_of_weekday(weekday, today)
+        expected = today
+
+        self.assertEqual(actual, expected)
+
+    def test_weekday_if_after_today(self):
+        today = date(2018, 12, 27)
+        weekday = 5  # Saturday
+
+        actual = get_date_of_weekday(weekday, today)
+        expected = date(2018, 12, 29)
+
+        self.assertEqual(actual, expected)
+
+    def test_weekday_if_before_today(self):
+        today = date(2018, 12, 27)
+        weekday = 2  # Wednesday
+
+        actual = get_date_of_weekday(weekday, today)
+        expected = date(2019, 1, 2)
+
+        self.assertEqual(actual, expected)

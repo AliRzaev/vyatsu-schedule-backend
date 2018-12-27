@@ -1,8 +1,11 @@
-from typing import List
+from functools import lru_cache
+from typing import Tuple
+
 from utils.groups_info import GroupInfo
 
 
-def groups_info_to_dict(documents: List[GroupInfo],
+@lru_cache()
+def groups_info_to_dict(documents: Tuple[GroupInfo, ...],
                         by_faculty: bool = False) -> dict:
     """
     Transform groups information into form specified by API 1
