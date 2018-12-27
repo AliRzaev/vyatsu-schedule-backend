@@ -2,6 +2,16 @@ from datetime import date, timedelta
 from typing import Tuple
 
 
+def as_date(date_str: str) -> date:
+    """
+    Return the date corresponding to a date_str in the format ddMMyyyy
+    """
+    d = int(date_str[:2])
+    m = int(date_str[2:4])
+    y = int(date_str[4:])
+    return date(y, m, d)
+
+
 def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     """
     Compute week and day indexes from the begin of the first
@@ -15,10 +25,7 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     if today is None:
         today = date.today()
 
-    d = int(first_date[:2])
-    m = int(first_date[2:4])
-    y = int(first_date[4:])
-    begin = date(y, m, d)
+    begin = as_date(first_date)
 
     diff = (today - begin).days
     week_index = (diff // 7) % 2
@@ -60,10 +67,7 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     day_offset = week_index * 7 + day_index
     delta = timedelta(days=day_offset)
 
-    d = int(first_date[:2])
-    m = int(first_date[2:4])
-    y = int(first_date[4:])
-    begin = date(y, m, d)
+    begin = as_date(first_date)
     begin += delta
 
     return '{d:02}{m:02}{y:04}'.format(d=begin.day, m=begin.month, y=begin.year)
