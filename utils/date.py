@@ -71,3 +71,14 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     begin += delta
 
     return '{d:02}{m:02}{y:04}'.format(d=begin.day, m=begin.month, y=begin.year)
+
+
+def get_date_of_weekday(weekday: int, today: date = None) -> date:
+    """
+    Get the nearest (may be today) date of the weekday
+    """
+    if today is None:
+        today = date.today()
+
+    offset = (7 + weekday - today.weekday()) % 7
+    return today + timedelta(days=offset)
