@@ -1,6 +1,7 @@
 from flask import Blueprint
 
-from utils import groups_info, date_ranges_info
+from utils import date_ranges_info
+from utils import groups_info
 from utils.responses import Error
 from utils.schedule import fetch_schedule, ParseException
 from utils.transforming.api_v1 import groups_info_to_dict
@@ -14,7 +15,7 @@ api_v1_blueprint = Blueprint('api_v1', __name__)
 @on_exception(500)
 @content_type_json
 def get_groups_list():
-    return groups_info_to_dict(groups_info.get_groups_info())
+    return groups_info_to_dict(groups_info.get_groups())
 
 
 @api_v1_blueprint.route('/groups/by_faculty.json', methods=['GET'])  # backward compatibility
@@ -22,7 +23,7 @@ def get_groups_list():
 @on_exception(500)
 @content_type_json
 def get_groups_by_faculty():
-    return groups_info_to_dict(groups_info.get_groups_info(), by_faculty=True)
+    return groups_info_to_dict(groups_info.get_groups(), by_faculty=True)
 
 
 @api_v1_blueprint.route('/calls', methods=['GET'])

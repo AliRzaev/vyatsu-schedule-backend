@@ -1,6 +1,12 @@
-from unittest import TestCase
-from utils.groups_info import *
+from datetime import date
 from json import load
+from unittest import TestCase
+
+import responses
+
+from utils.date import get_date_of_weekday
+from utils.extractors import *
+from utils.groups_info import GROUPS_INFO_URL, get_groups, _get_page
 
 
 class TestGroupsInfo(TestCase):
@@ -17,20 +23,50 @@ class TestGroupsInfo(TestCase):
             self.info = sorted((GroupInfo(item['groupId'], item['group'], item['faculty'])
                                 for item in load(file)))
 
-    def test_remove_parentheses(self):
-        data = (
-            ('Юридический институт (факультет) (ОРУ)', 'Юридический институт'),
-            ('Юридический институт (факультет)', 'Юридический институт'),
-            ('Юридический институт', 'Юридический институт')
-        )
+        self.clear_cache()
 
-        for item in data:
-            with self.subTest(item=item):
-                s = remove_parentheses(item[0])
-                self.assertTrue(s, item[1])
+    def tearDown(self):
+        self.clear_cache()
 
-    def test_groups_info(self):
-        actual = sorted(parse_groups_info_page(self.page))
+    def clear_cache(self):
+        _get_page.cache_clear()
+
+    @responses.activate
+    def test_get_groups(self):
+        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
+                      content_type='text/html; charset=utf8')
+
+        actual = sorted(get_groups())
         expected = self.info
 
         self.assertEqual(actual, expected)
+
+    @responses.activate
+    def test_get_groups_threshold(self):
+        self.clear_cache()
+        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
+                      content_type='text/html; charset=utf8')
+
+        d = date(2018, 12, 5)
+        _get_page(d)
+
+        self.assertEqual(len(responses.calls), 1)
+
+        _get_page(d)
+
+        self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_get_groups_threshold_invalidate(self):
+        self.clear_cache()
+        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
+                      content_type='text/html; charset=utf8')
+
+        d = date(2018, 12, 5)  # Wednesday
+        _get_page(d)
+
+        self.assertEqual(len(responses.calls), 1)
+
+        _get_page(get_date_of_weekday(2, date(2018, 12, 6)))  # next Wednesday
+
+        self.assertEqual(len(responses.calls), 2)

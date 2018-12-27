@@ -2,7 +2,7 @@ from json import load
 from unittest import TestCase
 
 from utils.transforming import api_v1, api_v2
-from utils.groups_info import GroupInfo
+from utils.extractors import GroupInfo
 
 
 class TestTransformingV1(TestCase):
@@ -10,9 +10,9 @@ class TestTransformingV1(TestCase):
     def setUp(self):
         with open('tests/resources/groups_info.json',
                   'r', encoding='utf-8') as file:
-            self.data = [GroupInfo(item['groupId'],
-                                   item['group'],
-                                   item['faculty']) for item in load(file)]
+            self.data = tuple(GroupInfo(item['groupId'],
+                                        item['group'],
+                                        item['faculty']) for item in load(file))
 
     def test_groups_list(self):
         actual = api_v1.groups_info_to_dict(self.data)
@@ -38,9 +38,9 @@ class TestTransformingV2(TestCase):
     def setUp(self):
         with open('tests/resources/groups_info.json',
                   'r', encoding='utf-8') as file:
-            self.data = [GroupInfo(item['groupId'],
-                                   item['group'],
-                                   item['faculty']) for item in load(file)]
+            self.data = tuple(GroupInfo(item['groupId'],
+                                        item['group'],
+                                        item['faculty']) for item in load(file))
 
     def test_groups_list(self):
         actual = sorted(api_v2.groups_info_to_list(self.data),
