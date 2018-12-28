@@ -35,7 +35,7 @@ def get_groups_as_dict() -> Dict[str, GroupInfo]:
 
 def get_group_name(group_id: str) -> Optional[str]:
     groups_info = get_groups_as_dict()
-    return groups_info.get(group_id, None)
+    return groups_info.get(group_id, None).group
 
 
 def get_date_range(group_id: str,
