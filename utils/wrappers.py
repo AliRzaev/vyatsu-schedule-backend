@@ -65,23 +65,3 @@ def content_type_json(route):
     wrapper_fun.__name__ = route.__name__
 
     return wrapper_fun
-
-
-def comparable_mixin(cls):
-    """
-    This decorator adds special methods for comparing instances of class 'cls'.
-    Class 'cls' have to define only one special method for comparing: __lt__,
-    other methods will be implemented with it
-    :param cls: class to be extended
-    """
-    cls.__eq__ = lambda l, r: not l < r and not r < l
-
-    cls.__ne__ = lambda l, r: l < r or r < l
-
-    cls.__gt__ = lambda l, r: r < l
-
-    cls.__ge__ = lambda l, r: not l < r
-
-    cls.__le__ = lambda l, r: not r < l
-
-    return cls

@@ -1,9 +1,11 @@
+from logging import CRITICAL
 from unittest import TestCase
+
 from flask import Response
-from utils.wrappers import on_exception, comparable_mixin, content_type_json
+
 from utils import wrappers
 from utils.logging import get_logger
-from logging import CRITICAL
+from utils.wrappers import on_exception, content_type_json
 
 
 class TestOnException(TestCase):
@@ -71,51 +73,6 @@ class TestOnException(TestCase):
         val = fail_foo()
 
         self.assertEqual(val.mimetype, 'application/json', "Mimetype must be equal to 'application/json'")
-
-
-class TestComparableMixin(TestCase):
-
-    @comparable_mixin
-    class Cls:
-
-        def __init__(self, key):
-            self.key = key
-
-        def __lt__(self, other):
-            return self.key < other.key
-
-    def setUp(self):
-        self.val = self.Cls(5)
-
-    def test_lt(self):
-        other = self.Cls(6)
-
-        self.assertLess(self.val, other, '__lt__ does not work')
-
-    def test_gt(self):
-        other = self.Cls(4)
-
-        self.assertGreater(self.val, other, '__gt__ does not work')
-
-    def test_le(self):
-        other = self.Cls(5)
-
-        self.assertLessEqual(self.val, other, '__le__ does not work')
-
-    def test_ge(self):
-        other = self.Cls(5)
-
-        self.assertGreaterEqual(self.val, other, '__ge__ does not work')
-
-    def test_eq(self):
-        other = self.Cls(5)
-
-        self.assertEqual(self.val, other, '__eq__ does not work')
-
-    def test_ne(self):
-        other = self.Cls(6)
-
-        self.assertNotEqual(self.val, other, '__ne__ does not work')
 
 
 class TestContentTypeJson(TestCase):
