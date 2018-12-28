@@ -1,6 +1,5 @@
 from flask import Blueprint
 
-from utils import date_ranges_info
 from utils import groups_info
 from utils.responses import Error
 from utils.schedule import fetch_schedule, ParseException
@@ -56,7 +55,7 @@ def get_schedule(group_id, season):
     if group_name is None:
         return Error(422, 'NO_SUCH_GROUP')
 
-    range_ = date_ranges_info.get_date_range(group_id, season)
+    range_ = groups_info.get_date_range(group_id, season)
     if range_ is None:
         return Error(422, 'NO_SUCH_SCHEDULE')
 
