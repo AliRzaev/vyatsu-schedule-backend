@@ -4,8 +4,7 @@ from json import load, loads
 from unittest import TestCase
 
 from server import app
-from utils.groups_info import GROUPS_INFO_URL
-from config.redis import get_instance
+from utils.groups_info import GROUPS_INFO_URL, _get_page
 
 
 class TestApiV1Groups(TestCase):
@@ -34,7 +33,7 @@ class TestApiV1Groups(TestCase):
 
     @staticmethod
     def clear_cache():
-        get_instance().flushall()
+        _get_page.cache_clear()
 
     @responses.activate
     def test_groups_list(self):
