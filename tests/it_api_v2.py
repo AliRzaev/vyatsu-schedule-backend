@@ -1,10 +1,13 @@
-import responses
-
 from json import load, loads
+from logging import CRITICAL
 from unittest import TestCase
 
+import responses
+
+import server
 from server import app
 from utils.groups_info import GROUPS_INFO_URL, _get_page
+from utils.logging import get_logger
 
 
 class TestApiV2Groups(TestCase):
@@ -15,6 +18,8 @@ class TestApiV2Groups(TestCase):
     """
 
     def setUp(self):
+        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+
         self.app = app.test_client()
         self.app.testing = True
 
@@ -66,6 +71,8 @@ class TestApiV2Groups(TestCase):
 class TestApiV2Calls(TestCase):
 
     def setUp(self):
+        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+
         self.app = app.test_client()
         self.app.testing = True
 
