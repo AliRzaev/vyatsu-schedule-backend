@@ -18,10 +18,8 @@ logger = get_logger(__name__)
 CORS(api_v1_blueprint, methods=['GET'])
 CORS(api_v2_blueprint, methods=['GET'])
 
-app.register_blueprint(api_v1_blueprint, url_prefix='/vyatsu')  # backward compatibility
 app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
 
-app.register_blueprint(api_v2_blueprint, url_prefix='/vyatsu/v2')  # backward compatibility
 app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
 
 

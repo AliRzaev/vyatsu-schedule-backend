@@ -10,7 +10,6 @@ from utils.wrappers import on_exception, content_type_json
 api_v2_blueprint = Blueprint('api_v2', __name__)
 
 
-@api_v2_blueprint.route('/groups.json', methods=['GET'])  # backward compatibility
 @api_v2_blueprint.route('/groups/list', methods=['GET'])
 @on_exception(500)
 @content_type_json
@@ -18,7 +17,6 @@ def get_groups_list():
     return groups_info_to_list(groups_info.get_groups())
 
 
-@api_v2_blueprint.route('/groups/by_faculty.json', methods=['GET'])  # backward compatibility
 @api_v2_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
 @content_type_json
