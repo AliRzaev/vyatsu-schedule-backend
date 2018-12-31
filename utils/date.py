@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from typing import Tuple
 
 
@@ -23,7 +23,7 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     :return: tuple of two numbers: week index (0 or 1) and day index (from 0 to 5 inclusive)
     """
     if today is None:
-        today = date.today()
+        today = get_moscow_today()
 
     begin = as_date(first_date)
 
@@ -47,7 +47,7 @@ def get_current_season(today: date = None) -> str:
     :return: 'autumn' or 'spring'
     """
     if today is None:
-        today = date.today()
+        today = get_moscow_today()
 
     if 8 <= today.month <= 12:
         return 'autumn'
@@ -78,7 +78,11 @@ def get_date_of_weekday(weekday: int, today: date = None) -> date:
     Get the nearest (may be today) date of the weekday
     """
     if today is None:
-        today = date.today()
+        today = get_moscow_today()
 
     offset = (7 + weekday - today.weekday()) % 7
     return today + timedelta(days=offset)
+
+
+def get_moscow_today() -> date:
+    return (datetime.utcnow() + timedelta(hours=3)).date()

@@ -5,7 +5,7 @@ from typing import Dict, Optional, Tuple
 
 import requests
 
-from utils.date import get_date_of_weekday, as_date
+from utils.date import get_date_of_weekday, as_date, get_moscow_today
 from utils.extractors import *
 
 GROUPS_INFO_URL = 'https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya' \
@@ -42,7 +42,7 @@ def get_date_range(group_id: str,
                    season: str,
                    today: date = None) -> Optional[DateRange]:
     if today is None:
-        today = date.today()
+        today = get_moscow_today()
 
     date_ranges = extract_date_ranges(get_page())
 
