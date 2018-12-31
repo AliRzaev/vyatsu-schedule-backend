@@ -28,8 +28,10 @@ class TestOnException(TestCase):
 
         wrapped = on_exception()(specific_name)
 
-        self.assertTrue(hasattr(wrapped, '__name__'), "Wrapped function doesn't have attribute '__name__'")
-        self.assertEqual(wrapped.__name__, 'specific_name', "Wrapped function's name wasn't preserved")
+        self.assertTrue(hasattr(wrapped, '__name__'),
+                        "Wrapped function doesn't have attribute '__name__'")
+        self.assertEqual(wrapped.__name__, 'specific_name',
+                         "Wrapped function's name wasn't preserved")
 
     def test_failure_response(self):
         @on_exception()
@@ -38,7 +40,9 @@ class TestOnException(TestCase):
 
         val = fail_foo()
 
-        self.assertIsInstance(val, Response, 'Return value must be an instance of flask.Response')
+        self.assertIsInstance(
+            val, Response, 'Return value must be an instance of flask.Response'
+        )
 
         data = val.json
         expected_data = {
@@ -54,7 +58,8 @@ class TestOnException(TestCase):
 
         val = fail_foo()
 
-        self.assertEqual(val.status_code, 500, 'Default status code must be equal to 500')
+        self.assertEqual(val.status_code, 500,
+                         'Default status code must be equal to 500')
 
     def test_failure_custom_status_code(self):
         @on_exception(422)
@@ -72,7 +77,8 @@ class TestOnException(TestCase):
 
         val = fail_foo()
 
-        self.assertEqual(val.mimetype, 'application/json', "Mimetype must be equal to 'application/json'")
+        self.assertEqual(val.mimetype, 'application/json',
+                         "Mimetype must be equal to 'application/json'")
 
 
 class TestContentTypeJson(TestCase):
@@ -116,7 +122,8 @@ class TestContentTypeJson(TestCase):
 
         mime_type = resp.mimetype
 
-        self.assertEqual(mime_type, 'application/json', "Mimetype must be equal to 'application/json'")
+        self.assertEqual(mime_type, 'application/json',
+                         "Mimetype must be equal to 'application/json'")
 
     def test_status_code(self):
         data = [1, 2, 3]

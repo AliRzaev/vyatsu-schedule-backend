@@ -13,7 +13,6 @@ GroupInfo = namedtuple('GroupInfo', ['group_id', 'group', 'faculty'])
 
 DateRange = namedtuple('DateRange', ['first', 'second'])
 
-
 SHORTHANDS = {
     'Институт биологии и биотехнологии (факультет)(ОРУ)': 'ИББТ',
     'Институт химии и экологии (факультет) (ОРУ)': 'ИнХимЭк',
@@ -36,13 +35,10 @@ PATTERN = re.compile(
 )
 
 
-def _find_links_if(tag: Tag) -> bool:
-    return tag.name == 'div' and 'grpPeriod' in tag['class']
-
-
-def _remove_parentheses(name: Union[NavigableString, str]) -> str:
+def _remove_parenthesized(name: Union[NavigableString, str]) -> str:
     """
-    Remove text in parentheses
+    Remove text in parentheses. Parentheses will be also removed.
+
     Example: 'Юридический институт (факультет) (ОРУ)' -> 'Юридический институт'
     """
     pattern = compile(r'\(.*?\)\s?')
@@ -50,7 +46,11 @@ def _remove_parentheses(name: Union[NavigableString, str]) -> str:
 
 
 def _faculty_with_shorthand(faculty_name: str) -> str:
-    stripped_name = _remove_parentheses(faculty_name)
+    """
+    Construct string of the faculty name shorthand followed by
+    faculty name in parentheses.
+    """
+    stripped_name = _remove_parenthesized(faculty_name)
     if faculty_name in SHORTHANDS:
         return '{} ({})'.format(SHORTHANDS[faculty_name], stripped_name)
     else:
@@ -62,11 +62,18 @@ def _groups_as_dict(tag: Tag) -> Dict[str, str]:
     Find all occurrences of tags with links
     to groups schedules and return dictionary: {'group name': 'group id'}
     """
-    return {_remove_parentheses(link.string): link['data-grp_period_id'][:-1]
+
+    def _find_links_if(link: Tag) -> bool:
+        return link.name == 'div' and 'grpPeriod' in link['class']
+
+    return {_remove_parenthesized(link.string): link['data-grp_period_id'][:-1]
             for link in tag.find_all(_find_links_if)}
 
 
 def _extract_groups(html: str) -> Iterable[GroupInfo]:
+    """
+    Yield GroupInfo items extracted from html page.
+    """
     document = BeautifulSoup(html, 'html.parser')
 
     tables = document \
@@ -86,7 +93,7 @@ def _extract_groups(html: str) -> Iterable[GroupInfo]:
 @lru_cache()
 def extract_groups(html: str, as_dict=False):
     """
-    Extract information about groups from html page
+    Extract information about groups from html page.
 
     :rtype: Union[Tuple[GroupInfo], Dict[str, GroupInfo]]
     """
@@ -101,7 +108,7 @@ def extract_groups(html: str, as_dict=False):
 @lru_cache()
 def extract_date_ranges(html: str):
     """
-    Extract information about schedules date ranges from html page
+    Extract information about schedules date ranges from html page.
 
     Returns a dict object of the following structure: ::
 

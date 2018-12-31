@@ -11,7 +11,7 @@ class TestApiV1Groups(TestCase):
     """
     Be attentive! This test case may wipe out data in your database.
     Please ensure that you run test case with database for testing,
-    not for production
+    not for production.
     """
 
     def setUp(self):

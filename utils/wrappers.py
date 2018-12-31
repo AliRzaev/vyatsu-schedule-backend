@@ -8,19 +8,22 @@ _logger = get_logger(__name__)
 
 class on_exception:
     """
-    Decorator for handling exceptions in routes and converting to appropriate responses.
+    Decorator for handling exceptions in routes and
+    converting to appropriate responses.
     """
     def __init__(self, status_code=500):
         """
         Create a decorator that will send response with specified status code
-        if some exceptions will be occurred during function call
+        if some exceptions will be occurred during function call.
+
         :param status_code: HTTP status code for response
         """
         self._status_code = status_code
 
     def __call__(self, route):
         """
-        Decorate given function
+        Decorate given function.
+
         :param route: the function to be wrapped
         :return: callable object
         """
@@ -46,8 +49,10 @@ class on_exception:
 def content_type_json(route):
     """
     This decorator converts the result of the wrapped function into JSON string.
+
     :param route: the function to be wrapped
-    :return: JSON string or unmodified result (if result isn't a list or a dict).
+    :return: JSON string or unmodified result
+             (if result isn't a list or a dict).
     :raise JSONDecodeError if some errors occur during serialization.
     """
     def wrapper_fun(*args, **kwargs):

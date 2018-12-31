@@ -8,21 +8,18 @@ from utils.extractors import extract_date_ranges, extract_groups, GroupInfo, \
 class TestExtractors(TestCase):
 
     def setUp(self):
-        with open(
-                'tests/resources/html/groups_info_page.html', 'r',
-                encoding='utf-8') as file:
+        with open('tests/resources/html/groups_info_page.html',
+                  'r', encoding='utf-8') as file:
             self.page = file.read()
 
-        with open(
-                'tests/resources/groups_info.json', 'r',
-                encoding='utf-8') as file:
-            self.info = sorted((GroupInfo(item['groupId'], item['group'], item['faculty'])
-                                for item in load(file)))
+        with open('tests/resources/groups_info.json',
+                  'r', encoding='utf-8') as file:
+            self.info = sorted(
+                (GroupInfo(item['groupId'], item['group'], item['faculty'])
+                 for item in load(file)))
 
-        with open(
-                'tests/resources/date_ranges.json', 'r',
-                encoding='utf-8'
-        ) as file:
+        with open('tests/resources/date_ranges.json',
+                  'r', encoding='utf-8') as file:
             self.ranges = load(file)
             for seasons in self.ranges.values():
                 seasons['autumn'] = [

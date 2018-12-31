@@ -4,7 +4,7 @@ from typing import Tuple
 
 def as_date(date_str: str) -> date:
     """
-    Return the date corresponding to a date_str in the format ddMMyyyy
+    Return the date corresponding to a date_str in the format 'ddMMyyyy'.
     """
     d = int(date_str[:2])
     m = int(date_str[2:4])
@@ -18,9 +18,11 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     day of schedule range for today or another given day.
     If the given is sunday, function returns indexes of the
     next day after sunday.
+
     :param first_date: the begin of the schedule range
     :param today: the day for which indexes will be computed.
-    :return: tuple of two numbers: week index (0 or 1) and day index (from 0 to 5 inclusive)
+    :return: tuple of two numbers: week index (0 or 1)
+             and day index (from 0 to 5 inclusive)
     """
     if today is None:
         today = get_moscow_today()
@@ -41,8 +43,9 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
 def get_current_season(today: date = None) -> str:
     """
     Determine which season does given day belong to.
-    Season 'autumn': from 1st August to 31st December.
-    Season 'spring': from 1st January to 31st July
+    Season 'autumn': from August, 1 to December, 31.
+    Season 'spring': from January, 1 to July, 31.
+
     :param today: the day for which season will be determined
     :return: 'autumn' or 'spring'
     """
@@ -58,7 +61,9 @@ def get_current_season(today: date = None) -> str:
 # TODO: write unit tests
 def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     """
-    Get the date that corresponds given day and week indexes according to the begin date - first_date
+    Get the date that corresponds given day and week
+    indexes according to the begin date - first_date.
+
     :param first_date: date string of the following format: 'ddMMyyyy'
     :param week_index: week index from 0 to 1
     :param day_index: day index, from 0 to 6
@@ -75,7 +80,7 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
 
 def get_date_of_weekday(weekday: int, today: date = None) -> date:
     """
-    Get the nearest (may be today) date of the weekday
+    Get the nearest (may be today) date of the weekday.
     """
     if today is None:
         today = get_moscow_today()

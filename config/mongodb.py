@@ -11,16 +11,13 @@ _database = _client.get_database()
 
 def get_database() -> Database:
     """
-    Get database specified in MongoDB URI
-    :return: Database instance
+    Return database specified in MongoDB URI.
     """
     return _database
 
 
-def get_collection(collection_name: str) -> Collection:
+def get_collection(name: str) -> Collection:
     """
-    Get collection with given name
-    :param collection_name:
-    :return: Collection instance
+    Return collection with given name.
     """
-    return _database.get_collection(collection_name)
+    return _database.get_collection(name)
