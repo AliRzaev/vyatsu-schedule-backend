@@ -37,7 +37,7 @@ if __name__ != '__main__':  # logs to console in production environment
 
 
 @app.after_request
-def set_max_age(response: Response):
+def set_expires(response: Response):
     d = get_date_of_weekday(3)
     stamp = mktime(datetime(d.year, d.month, d.day).timetuple())
     response.headers.set('Expires', formatdate(stamp, usegmt=True))
