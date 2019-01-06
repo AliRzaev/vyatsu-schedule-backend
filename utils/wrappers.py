@@ -1,7 +1,7 @@
 from flask import Response
 from json import dumps
 from utils.logging import get_logger
-
+from functools import wraps
 
 _logger = get_logger(__name__)
 
@@ -27,6 +27,7 @@ class on_exception:
         :param route: the function to be wrapped
         :return: callable object
         """
+        @wraps(route)
         def wrapper_fun(*args, **kwargs):
             try:
                 return route(*args, **kwargs)
@@ -41,8 +42,6 @@ class on_exception:
                     mimetype='application/json'
                 )
 
-        wrapper_fun.__name__ = route.__name__
-
         return wrapper_fun
 
 
@@ -55,6 +54,7 @@ def content_type_json(route):
              (if result isn't a list or a dict).
     :raise JSONDecodeError if some errors occur during serialization.
     """
+    @wraps(route)
     def wrapper_fun(*args, **kwargs):
         route_res = route(*args, **kwargs)
         if isinstance(route_res, (list, dict)):
@@ -66,7 +66,5 @@ def content_type_json(route):
             )
         else:
             return route_res
-
-    wrapper_fun.__name__ = route.__name__
 
     return wrapper_fun
