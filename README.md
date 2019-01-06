@@ -1,41 +1,56 @@
-# VyatSU schedule API server
+# Backend-сервер для VyatSU schedule
 
-[![Build Status](https://travis-ci.org/AliRzaev/vyatsu_schedule_api_server.svg?branch=master)](https://travis-ci.org/AliRzaev/vyatsu_schedule_api_server)
+Данный сервер предоставляет REST API для расписания занятий студентов 
+[Вятского государственного университета](https://www.vyatsu.ru).
 
-This application provides RESTful API for viewing group schedules.
+Документация по API: [vyatsuschedule.github.io/docs](https://vyatsuschedule.github.io/docs).
 
-API documentation can be found here: [vyatsuschedule.github.io/docs](https://vyatsuschedule.github.io/docs)
+## Для разработчиков
 
-Designed for [Vyatka State University](https://www.vyatsu.ru)
+### Необходимые переменные окружения
 
-## Running app
+`MONGODB_URI` - URI базы данных MongoDB в формате 
+`mongodb://<user>:<password>@<host>:<port>/<database>`. 
+Поле `<database>` обязательно.
 
-### Required environment variables
+`PORT` - порт, который сервер будет слушать, по умолчанию `80`.
 
-`MONGODB_URI` - URI to MongoDB database of format `mongodb://<user>:<password>@<host>:<port>/<database>`. You have to specify the database name.
+`PARSE_API_URL` - URL [pdf2json-конвертера](https://gitlab.com/vyatsu-schedule/pdf2json).
 
-`REDIS_URI` - URI to Redis database of format `redis://<user>:<password>@<host>:<port>/<database>`. Default database - `0`.
+### Тесты
 
-`PORT` - port on which listen requests, default `80`.
-
-`PARSE_API_URL` - URL to [VyatSU schedule PDF parser](https://github.com/AliRzaev/vyatsu_pdf_parser) service.
-
-### Tests
-
-#### Unit tests
+#### Модульные тесты
 
 `python -m unittest discover -s tests`
 
-#### Integration tests
+#### Интеграционные тесты
 
-**Note:** `MONGODB_URI` and `REDIS_URI` must be defined.
+**Внимание:** переменная `MONGODB_URI` должна быть определна.
 
-**Be attentive!** Some test cases may **wipe out** data in your databases.
-Please ensure that you run tests with databases for testing,
-not for production.
+**Осторожно!** Во время выполнения некоторых тестов данные в БД могут быть 
+**безвозвратно** утеряны. 
+Перед запуском тестов удостоверьтесь, что используете тестовую базу данных, а не 
+основную.
 
 `python -m unittest discover -s tests -p it*.py`
 
-### Server
+### Запуск
 
 `gunicorn -b 0.0.0.0:$PORT server:app`
+
+### Docker
+
+1. Собираем образ
+
+   ```
+   docker build -t imagename .
+   ```
+
+2. Запускаем
+   
+   ```
+   docker run --name somename -d -p 8080:80 \
+     -e MONGODB_URI=<URI> \
+     -e PARSE_API_URL=<PARSE_API_URL> \
+     imagename
+   ```
