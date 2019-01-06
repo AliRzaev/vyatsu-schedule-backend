@@ -1,4 +1,6 @@
 from datetime import date, timedelta, datetime
+from email.utils import formatdate
+from time import mktime
 from typing import Tuple
 
 
@@ -10,6 +12,14 @@ def as_date(date_str: str) -> date:
     m = int(date_str[2:4])
     y = int(date_str[4:])
     return date(y, m, d)
+
+
+def as_rfc2822(date_: date) -> str:
+    """
+    Returns a date string as per RFC 2822
+    """
+    stamp = mktime(datetime(date_.year, date_.month, date_.day).timetuple())
+    return formatdate(stamp, usegmt=True)
 
 
 def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
