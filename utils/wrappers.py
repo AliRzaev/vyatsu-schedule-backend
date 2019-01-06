@@ -1,5 +1,7 @@
 from flask import Response
 from json import dumps
+
+from utils.date import as_rfc2822
 from utils.logging import get_logger
 from functools import wraps
 
@@ -68,3 +70,64 @@ def content_type_json(route):
             return route_res
 
     return wrapper_fun
+
+
+def no_cache(route):
+    """
+    Turn off caching for the responses of the given route.
+    """
+    @wraps(route)
+    def wrapper_fun(*args, **kwargs):
+        route_res = route(*args, **kwargs)
+
+        if isinstance(route_res, Response):
+            route_res.headers.set('Cache-Control',
+                                  'no-cache, no-store, must-revalidate')
+            return route_res
+        else:
+            raise TypeError('Route must return a Response object')
+
+    return wrapper_fun
+
+
+def immutable(route):
+    """
+    Aggressive caching, store the responses of the given route
+    in cache as much as possible.
+    """
+    @wraps(route)
+    def wrapper_fun(*args, **kwargs):
+        route_res = route(*args, **kwargs)
+
+        if isinstance(route_res, Response):
+            route_res.headers.set('Cache-Control',
+                                  'public, max-age=31536000')
+            return route_res
+        else:
+            raise TypeError('Route must return a Response object')
+
+    return wrapper_fun
+
+
+class expires:
+    """
+    Set HTTP header Expires with date obtained from date_fun function.
+    """
+    def __init__(self, date_fun):
+        """
+        :param date_fun: callable that returns instance of datetime.date class.
+        """
+        self._date_fun = date_fun
+
+    def __call__(self, route):
+        @wraps(route)
+        def wrapper_fun(*args, **kwargs):
+            route_res = route(*args, **kwargs)
+
+            if isinstance(route_res, Response):
+                route_res.headers.set('Expires', as_rfc2822(self._date_fun()))
+                return route_res
+            else:
+                raise TypeError('Route must return a Response object')
+
+        return wrapper_fun

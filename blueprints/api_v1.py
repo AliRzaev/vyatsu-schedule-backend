@@ -1,16 +1,18 @@
 from flask import Blueprint
 
 from utils import groups_info
+from utils.date import get_date_of_weekday
 from utils.responses import Error
 from utils.schedule import fetch_schedule, ParseException
 from utils.transforming.api_v1 import groups_info_to_dict
-from utils.wrappers import on_exception, content_type_json
+from utils.wrappers import on_exception, content_type_json, immutable, expires
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
 
 @api_v1_blueprint.route('/groups/list', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_groups_list():
     return groups_info_to_dict(groups_info.get_groups())
@@ -18,6 +20,7 @@ def get_groups_list():
 
 @api_v1_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_groups_by_faculty():
     return groups_info_to_dict(groups_info.get_groups(), by_faculty=True)
@@ -25,6 +28,7 @@ def get_groups_by_faculty():
 
 @api_v1_blueprint.route('/calls', methods=['GET'])
 @on_exception(500)
+@immutable
 @content_type_json
 def get_calls():
     return [
@@ -40,6 +44,7 @@ def get_calls():
 
 @api_v1_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_schedule(group_id, season):
     if season == 'autumn':
