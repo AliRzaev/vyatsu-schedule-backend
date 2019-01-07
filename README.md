@@ -17,7 +17,7 @@
 
 `PORT` - порт, который сервер будет слушать, по умолчанию `80`.
 
-`PARSE_API_URL` - URL [pdf2json-конвертера](https://gitlab.com/vyatsu-schedule/pdf2json).
+`PDF2JSON_API_URL` - URL [pdf2json-конвертера](https://gitlab.com/vyatsu-schedule/pdf2json).
 
 ### Тесты
 

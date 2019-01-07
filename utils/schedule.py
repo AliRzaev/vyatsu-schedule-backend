@@ -5,7 +5,7 @@ import requests
 
 from utils.groups_info import DateRange
 
-_PARSE_API_URL = getenv('PARSE_API_URL')
+_PDF2JSON_API_URL = getenv('PDF2JSON_API_URL')
 
 _URL_TEMPLATE = 'https://www.vyatsu.ru/reports/schedule/Group/{}_{}_{}_{}.pdf'
 
@@ -16,7 +16,7 @@ class ParseException(Exception):
 
 @lru_cache(maxsize=512)
 def fetch_schedule(group_id: str, season_key: str, range_: DateRange):
-    api_url = _PARSE_API_URL + '/api/v1/parse_pdf'
+    api_url = _PDF2JSON_API_URL + '/api/v2/convert'
     pdf_url = _URL_TEMPLATE.format(group_id, season_key,
                                    range_[0], range_[1])
 
