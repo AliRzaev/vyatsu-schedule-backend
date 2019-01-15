@@ -16,14 +16,17 @@ logger = get_logger(__name__)
 CORS(api_v1_blueprint, methods=['GET'])
 CORS(api_v2_blueprint, methods=['GET'])
 
+
+@api_v1_blueprint.before_request
+@api_v2_blueprint.before_request
+def logs_to_mongo():  # logs each request into MongoDB
+    logs.insert_one(request.full_path)
+    logger.info('{} {}'.format(request.method, request.full_path))
+
+
 app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
 
 app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
-
-
-@app.before_request
-def logs_to_mongo():  # logs each request into MongoDB
-    logs.insert_one(request.full_path)
 
 
 if __name__ != '__main__':  # logs to console in production environment
