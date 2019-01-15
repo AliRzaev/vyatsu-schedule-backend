@@ -1,4 +1,4 @@
-from utils.mongodb_config import get_collection
+from config.mongodb import get_collection
 from datetime import datetime
 
 _collection = get_collection('logs')

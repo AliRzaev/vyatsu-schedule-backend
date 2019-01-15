@@ -1,29 +1,35 @@
 from flask import Response
 from json import dumps
-from utils.logging import get_logger
 
+from utils.date import as_rfc2822
+from utils.logging import get_logger
+from functools import wraps
 
 _logger = get_logger(__name__)
 
 
 class on_exception:
     """
-    Decorator for handling exceptions in routes and converting to appropriate responses.
+    Decorator for handling exceptions in routes and
+    converting to appropriate responses.
     """
     def __init__(self, status_code=500):
         """
         Create a decorator that will send response with specified status code
-        if some exceptions will be occurred during function call
+        if some exceptions will be occurred during function call.
+
         :param status_code: HTTP status code for response
         """
         self._status_code = status_code
 
     def __call__(self, route):
         """
-        Decorate given function
+        Decorate given function.
+
         :param route: the function to be wrapped
         :return: callable object
         """
+        @wraps(route)
         def wrapper_fun(*args, **kwargs):
             try:
                 return route(*args, **kwargs)
@@ -38,18 +44,19 @@ class on_exception:
                     mimetype='application/json'
                 )
 
-        wrapper_fun.__name__ = route.__name__
-
         return wrapper_fun
 
 
 def content_type_json(route):
     """
     This decorator converts the result of the wrapped function into JSON string.
+
     :param route: the function to be wrapped
-    :return: JSON string or unmodified result (if result isn't a list or a dict).
+    :return: JSON string or unmodified result
+             (if result isn't a list or a dict).
     :raise JSONDecodeError if some errors occur during serialization.
     """
+    @wraps(route)
     def wrapper_fun(*args, **kwargs):
         route_res = route(*args, **kwargs)
         if isinstance(route_res, (list, dict)):
@@ -62,26 +69,65 @@ def content_type_json(route):
         else:
             return route_res
 
-    wrapper_fun.__name__ = route.__name__
+    return wrapper_fun
+
+
+def no_cache(route):
+    """
+    Turn off caching for the responses of the given route.
+    """
+    @wraps(route)
+    def wrapper_fun(*args, **kwargs):
+        route_res = route(*args, **kwargs)
+
+        if isinstance(route_res, Response):
+            route_res.headers.set('Cache-Control',
+                                  'no-cache, no-store, must-revalidate')
+            return route_res
+        else:
+            raise TypeError('Route must return a Response object')
 
     return wrapper_fun
 
 
-def comparable_mixin(cls):
+def immutable(route):
     """
-    This decorator adds special methods for comparing instances of class 'cls'.
-    Class 'cls' have to define only one special method for comparing: __lt__,
-    other methods will be implemented with it
-    :param cls: class to be extended
+    Aggressive caching, store the responses of the given route
+    in cache as much as possible.
     """
-    cls.__eq__ = lambda l, r: not l < r and not r < l
+    @wraps(route)
+    def wrapper_fun(*args, **kwargs):
+        route_res = route(*args, **kwargs)
 
-    cls.__ne__ = lambda l, r: l < r or r < l
+        if isinstance(route_res, Response):
+            route_res.headers.set('Cache-Control',
+                                  'public, max-age=31536000')
+            return route_res
+        else:
+            raise TypeError('Route must return a Response object')
 
-    cls.__gt__ = lambda l, r: r < l
+    return wrapper_fun
 
-    cls.__ge__ = lambda l, r: not l < r
 
-    cls.__le__ = lambda l, r: not r < l
+class expires:
+    """
+    Set HTTP header Expires with date obtained from date_fun function.
+    """
+    def __init__(self, date_fun):
+        """
+        :param date_fun: callable that returns instance of datetime.date class.
+        """
+        self._date_fun = date_fun
 
-    return cls
+    def __call__(self, route):
+        @wraps(route)
+        def wrapper_fun(*args, **kwargs):
+            route_res = route(*args, **kwargs)
+
+            if isinstance(route_res, Response):
+                route_res.headers.set('Expires', as_rfc2822(self._date_fun()))
+                return route_res
+            else:
+                raise TypeError('Route must return a Response object')
+
+        return wrapper_fun

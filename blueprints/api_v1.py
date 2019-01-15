@@ -1,31 +1,34 @@
 from flask import Blueprint
-from utils.wrappers import on_exception, content_type_json
-from utils.transforming.api_v1 import groups_info_to_dict
-from utils.schedule import fetch_schedule, ParseException
+
+from utils import groups_info
+from utils.date import get_date_of_weekday
 from utils.responses import Error
-from models import groups_info, schedule_ranges
+from utils.schedule import fetch_schedule, ParseException
+from utils.transforming.api_v1 import groups_info_to_dict
+from utils.wrappers import on_exception, content_type_json, immutable, expires
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
 
-@api_v1_blueprint.route('/groups.json', methods=['GET'])  # backward compatibility
 @api_v1_blueprint.route('/groups/list', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_groups_list():
-    return groups_info_to_dict(groups_info.find_all())
+    return groups_info_to_dict(groups_info.get_groups())
 
 
-@api_v1_blueprint.route('/groups/by_faculty.json', methods=['GET'])  # backward compatibility
 @api_v1_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_groups_by_faculty():
-    return groups_info_to_dict(groups_info.find_all(), by_faculty=True)
+    return groups_info_to_dict(groups_info.get_groups(), by_faculty=True)
 
 
 @api_v1_blueprint.route('/calls', methods=['GET'])
 @on_exception(500)
+@immutable
 @content_type_json
 def get_calls():
     return [
@@ -41,6 +44,7 @@ def get_calls():
 
 @api_v1_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
 @on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
 @content_type_json
 def get_schedule(group_id, season):
     if season == 'autumn':
@@ -50,23 +54,19 @@ def get_schedule(group_id, season):
     else:
         return Error(422, 'INVALID_SEASON')
 
-    group_info = groups_info.find_group_by_id(group_id)
-    if group_info is None:
+    group_name = groups_info.get_group_name(group_id)
+    if group_name is None:
         return Error(422, 'NO_SUCH_GROUP')
-    else:
-        group_name = group_info['group']
 
-    range_info = schedule_ranges.find_by_group_and_season(group_id, season)
-    if range_info is None:
+    range_ = groups_info.get_date_range(group_id, season)
+    if range_ is None:
         return Error(422, 'NO_SUCH_SCHEDULE')
-    else:
-        _range = range_info['range']
 
     try:
         return {
             'group': group_name,
-            'date_range': _range,
-            'weeks': fetch_schedule(group_id, season_key, _range)
+            'date_range': range_,
+            'weeks': fetch_schedule(group_id, season_key, range_)
         }
     except ParseException as ex:
         return Error(422, str(ex))

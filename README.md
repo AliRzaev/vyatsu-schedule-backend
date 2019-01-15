@@ -1,66 +1,56 @@
-# VyatSU schedule API server
+# Backend-сервер для VyatSU schedule
 
-This application provides RESTful API for viewing group schedules.
+[![Build Status](https://travis-ci.org/alirzaev/vyatsu-schedule-backend.svg?branch=master)](https://travis-ci.org/alirzaev/vyatsu-schedule-backend)
 
-API documentation can be found here: [vyatsuschedule.github.io/docs](https://vyatsuschedule.github.io/docs)
+Данный сервер предоставляет REST API для расписания занятий студентов 
+[Вятского государственного университета](https://www.vyatsu.ru).
 
-Designed for [Vyatka State University](https://www.vyatsu.ru)
+## Для разработчиков
 
-## Running app
+### Необходимые переменные окружения
 
-### Required environment variables
+`MONGODB_URI` - URI базы данных MongoDB в формате 
+`mongodb://<user>:<password>@<host>:<port>/<database>`. 
+Поле `<database>` обязательно.
 
-`MONGODB_URI=<uri>` - URI to MongoDB database of format `mongodb://<user>:<password>@<host>:<port>/<database>`. You have to specify the database name.
+`PORT` - порт, который сервер будет слушать, по умолчанию `80`.
 
-`PORT` - port on which listen requests, default `80`.
+`PDF2JSON_API_URL` - URL [pdf2json-конвертера](https://gitlab.com/vyatsu-schedule/pdf2json).
 
-`PARSE_API_URL` - URL to [VyatSU schedule PDF parser](https://github.com/AliRzaev/vyatsu_pdf_parser) service.
+### Тесты
 
-### Tests
-
-#### Unit tests
+#### Модульные тесты
 
 `python -m unittest discover -s tests`
 
-#### API integration tests
+#### Интеграционные тесты
 
-**Note:** `MONGODB_URI` must be defined.
+**Внимание:** переменная `MONGODB_URI` должна быть определна.
 
-**Be attentive!** Some test cases may **wipe out** data in your database.
-Please ensure that you run tests with database for testing,
-not for production.
+**Осторожно!** Во время выполнения некоторых тестов данные в БД могут быть 
+**безвозвратно** утеряны. 
+Перед запуском тестов удостоверьтесь, что используете тестовую базу данных, а не 
+основную.
 
 `python -m unittest discover -s tests -p it*.py`
 
-### Scripts for updating information in database
-
-This scripts must be run regulary due to regular changes (every two week) in group schedules on the official [VyatSU](https://vyatsu.ru) site.
-
-#### Groups info updater
-
-`python -m updaters.groups_updater`
-
-#### Date ranges updater
-
-```
-usage: python -m updaters.ranges_updater [-h] [-f] [-d]
-
-optional arguments:
-  -h, --help      show this help message and exit
-  -f, --force     Update schedule ranges for ALL groups, for ALL seasons
-  -d, --drop-old  Delete ALL schedule ranges from DB before updating
-```
-
-### Server
-
-#### Database initialization
-
-Before running server (only for the first time) you have to load into database information about student groups and date ranges of group schedules.
-
-```
-python -m updaters.groups_updater && python -m updaters.ranges_updater
-```
-
-#### Running server
+### Запуск
 
 `gunicorn -b 0.0.0.0:$PORT server:app`
+
+### Docker
+
+1. Собираем образ
+
+   ```
+   docker build -t imagename .
+   ```
+
+2. Запускаем
+   
+   ```
+   docker run --name somename -d -p 8080:80 \
+     -e MONGODB_URI=<URI> \
+     -e PARSE_API_URL=<PARSE_API_URL> \
+     imagename
+   ```
