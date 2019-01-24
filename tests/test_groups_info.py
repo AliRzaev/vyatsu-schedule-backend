@@ -6,7 +6,7 @@ import responses
 
 from utils.date import get_date_of_weekday
 from utils.extractors import *
-from utils.groups_info import GROUPS_INFO_URL, get_groups, _get_page
+from utils.groups_info import GROUPS_INFO_URL, _get_page
 
 
 class TestGroupsInfo(TestCase):
@@ -29,16 +29,6 @@ class TestGroupsInfo(TestCase):
 
     def clear_cache(self):
         _get_page.cache_clear()
-
-    @responses.activate
-    def test_get_groups(self):
-        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
-                      content_type='text/html; charset=utf8')
-
-        actual = sorted(get_groups())
-        expected = self.info
-
-        self.assertEqual(actual, expected)
 
     @responses.activate
     def test_get_groups_threshold(self):

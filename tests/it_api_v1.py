@@ -2,12 +2,11 @@ from json import load, loads
 from logging import CRITICAL
 from unittest import TestCase
 
-import responses
-
 import server
+from config.redis import get_instance
 from server import app
-from utils.groups_info import GROUPS_INFO_URL, _get_page
 from utils.logging import get_logger
+from utils.prefetch import prefetch
 
 
 class TestApiV1Groups(TestCase):
@@ -33,18 +32,10 @@ class TestApiV1Groups(TestCase):
                   'r', encoding='utf-8') as file:
             self.groups_by_faculty = load(file)
 
-    def tearDown(self):
-        self.clear_cache()
+        get_instance().flushdb()
 
-    @staticmethod
-    def clear_cache():
-        _get_page.cache_clear()
-
-    @responses.activate
     def test_groups_list(self):
-        self.clear_cache()
-        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
-                      content_type='text/html; charset=utf8')
+        prefetch(html=self.page)
 
         response = self.app.get('/api/v1/groups/list')
         actual = loads(response.data)
@@ -52,11 +43,8 @@ class TestApiV1Groups(TestCase):
 
         self.assertEqual(actual, expected, 'Invalid data')
 
-    @responses.activate
     def test_groups_by_faculty(self):
-        self.clear_cache()
-        responses.add(responses.GET, GROUPS_INFO_URL, self.page,
-                      content_type='text/html; charset=utf8')
+        prefetch(html=self.page)
 
         response = self.app.get('/api/v1/groups/by_faculty')
         actual = loads(response.data)
