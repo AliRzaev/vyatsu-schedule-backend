@@ -21,7 +21,7 @@ CORS(api_v2_blueprint, methods=['GET'])
 @api_v1_blueprint.before_request
 @api_v2_blueprint.before_request
 def logs_to_mongo():  # logs each request into MongoDB
-    logs.insert_one(request.full_path)
+    logs.insert_one(request.full_path, request.user_agent.string)
 
 
 app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
