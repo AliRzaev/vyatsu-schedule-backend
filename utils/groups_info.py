@@ -39,11 +39,14 @@ def get_groups_as_dict() -> Dict[str, GroupInfo]:
 
 
 def get_group_name(group_id: str) -> Optional[str]:
-    group_info = loads(get_instance().get(f'{KEY_RANGE_PREFIX}{group_id}'))
-    if group_info is not None:
-        return group_info[0]
-    else:
+    key = f'{KEY_RANGE_PREFIX}{group_id}'
+    value = get_instance().get(key)
+
+    if value is None:
         return None
+
+    group_info = loads(value)
+    return group_info[0]
 
 
 def get_date_range(group_id: str, season: str) -> Optional[DateRange]:
