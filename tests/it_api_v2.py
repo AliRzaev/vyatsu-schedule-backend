@@ -1,11 +1,9 @@
 from json import load, loads
-from logging import CRITICAL
+from logging import disable
 from unittest import TestCase
 
-import server
-from config.redis import get_instance
+from config.redis import redis_store
 from server import app
-from utils.logging import get_logger
 from utils.prefetch import prefetch
 
 
@@ -17,7 +15,7 @@ class TestApiV2Groups(TestCase):
     """
 
     def setUp(self):
-        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+        disable()
 
         self.app = app.test_client()
         self.app.testing = True
@@ -35,7 +33,7 @@ class TestApiV2Groups(TestCase):
             for faculty in self.groups_by_faculty:
                 faculty['groups'].sort(key=lambda x: x['name'])
 
-        get_instance().flushdb()
+        redis_store.flushdb()
 
     def test_groups_list(self):
         prefetch(html=self.page)
@@ -59,7 +57,7 @@ class TestApiV2Groups(TestCase):
 class TestApiV2Calls(TestCase):
 
     def setUp(self):
-        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+        disable()
 
         self.app = app.test_client()
         self.app.testing = True

@@ -1,7 +1,7 @@
 from json import load
 from unittest import TestCase
 
-from config.redis import get_instance
+from config.redis import redis_store
 from utils.extractors import *
 from utils.groups_info import get_groups
 from utils.prefetch import prefetch
@@ -25,7 +25,7 @@ class TestGroupsInfo(TestCase):
                 (GroupInfo(item['groupId'], item['group'], item['faculty'])
                  for item in load(file)))
 
-        get_instance().flushdb()
+        redis_store.flushdb()
 
     def test_get_groups(self):
         prefetch(html=self.page)

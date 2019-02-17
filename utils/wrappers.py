@@ -4,9 +4,6 @@ from json import dumps
 from flask import Response
 
 from utils.date import as_rfc2822
-from utils.logging import get_logger
-
-_logger = get_logger(__name__)
 
 
 class on_exception:
@@ -35,7 +32,6 @@ class on_exception:
             try:
                 return route(*args, **kwargs)
             except Exception as ex:
-                _logger.exception('Error occurred at {}'.format(route.__name__))
                 response = dumps({
                     'error': str(ex)[:40]
                 })

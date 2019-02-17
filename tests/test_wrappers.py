@@ -1,17 +1,11 @@
-from logging import CRITICAL
 from unittest import TestCase
 
 from flask import Response
 
-from utils import wrappers
-from utils.logging import get_logger
 from utils.wrappers import on_exception
 
 
 class TestOnException(TestCase):
-
-    def setUp(self):
-        get_logger(wrappers.__name__).setLevel(CRITICAL)  # disable logging
 
     def test_ok(self):
         @on_exception()

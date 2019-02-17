@@ -1,15 +1,6 @@
-from os import getenv
+from flask_redis import FlaskRedis
 
-from redis import Redis
-
-REDIS_URI = getenv('REDIS_URL')
-
-_client = Redis.from_url(REDIS_URI, decode_responses=True)
-
-
-def get_instance():
-    return _client
-
+redis_store = FlaskRedis(decode_responses=True)
 
 KEY_GROUPS = 'groups'
 

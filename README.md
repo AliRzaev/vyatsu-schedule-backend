@@ -9,16 +9,18 @@
 
 ### Необходимые переменные окружения
 
-`MONGODB_URI` - URI базы данных MongoDB в формате 
-`mongodb://<user>:<password>@<host>:<port>/<database>`. 
-Поле `<database>` обязательно.
-
 `REDIS_URL` - URL базы данных Redis в формате 
 `redis://<user>:<password>@<host>:<port>/<database>`.
 
 `PORT` - порт, который сервер будет слушать, по умолчанию `80`.
 
 `PDF2JSON_API_URL` - URL [pdf2json-конвертера](https://github.com/alirzaev/vyatsu-schedule-pdf2json).
+
+### Опционально
+
+`MONGODB_URI` - URI базы данных MongoDB в формате 
+`mongodb://<user>:<password>@<host>:<port>/<database>`. 
+Поле `<database>` обязательно. Используется для ведения логов.
 
 ### Тесты
 

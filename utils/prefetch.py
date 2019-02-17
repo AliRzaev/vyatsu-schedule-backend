@@ -1,14 +1,15 @@
 import argparse
 from json import dumps
+from os import getenv
 
-from config.redis import get_instance, KEY_GROUPS, KEY_RANGE_PREFIX
+from redis import Redis
+
+from config.redis import KEY_GROUPS, KEY_RANGE_PREFIX
 from utils.extractors import *
 from utils.groups_info import get_page
 
 
-def prefetch(*, html: str = None, force=False):
-    redis = get_instance()
-
+def prefetch(*, redis, html: str = None, force=False):
     if redis.exists(KEY_GROUPS) and not force:
         return None
 
@@ -33,6 +34,12 @@ def prefetch(*, html: str = None, force=False):
 
 
 if __name__ == '__main__':
+    REDIS_URL = getenv('REDIS_URL', '')
+    if not REDIS_URL:
+        raise ValueError('REDIS_URL is not defined')
+
+    redis = Redis.from_url(REDIS_URL)
+    
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-f',
@@ -42,7 +49,7 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    status = prefetch(force=args.force)
+    status = prefetch(force=args.force, redis=redis)
 
     if status is None:
         print('Nothing to do')
