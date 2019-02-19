@@ -1,5 +1,5 @@
 from json import load, loads
-from logging import disable
+from logging import disable, CRITICAL
 from unittest import TestCase
 
 from config.redis import redis_store
@@ -15,7 +15,7 @@ class TestApiV2Groups(TestCase):
     """
 
     def setUp(self):
-        disable()
+        disable(CRITICAL)
 
         self.app = app.test_client()
         self.app.testing = True
@@ -36,7 +36,7 @@ class TestApiV2Groups(TestCase):
         redis_store.flushdb()
 
     def test_groups_list(self):
-        prefetch(html=self.page)
+        prefetch(html=self.page, redis=redis_store)
 
         response = self.app.get('/api/v2/groups/list')
         actual = loads(response.data)
@@ -45,7 +45,7 @@ class TestApiV2Groups(TestCase):
         self.assertEqual(actual, expected, 'Invalid data')
 
     def test_groups_by_faculty(self):
-        prefetch(html=self.page)
+        prefetch(html=self.page, redis=redis_store)
 
         response = self.app.get('/api/v2/groups/by_faculty')
         actual = loads(response.data)
@@ -57,7 +57,7 @@ class TestApiV2Groups(TestCase):
 class TestApiV2Calls(TestCase):
 
     def setUp(self):
-        disable()
+        disable(CRITICAL)
 
         self.app = app.test_client()
         self.app.testing = True
