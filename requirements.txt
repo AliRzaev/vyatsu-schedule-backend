@@ -8,3 +8,4 @@ flask_cors==3.0.6
 beautifulsoup4==4.6.0
 responses==0.10.5
 redis==3.0.1
+xlrd==1.2

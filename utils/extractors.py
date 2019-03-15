@@ -11,6 +11,9 @@ from utils.date import as_date
 
 GroupInfo = namedtuple('GroupInfo', ['group_id', 'group', 'faculty'])
 
+DepartmentInfo = namedtuple('DepartmentInfo',
+                            ['department_id', 'department', 'faculty'])
+
 DateRange = namedtuple('DateRange', ['first', 'second'])
 
 SHORTHANDS = {
@@ -31,8 +34,11 @@ SHORTHANDS = {
     'Юридический институт (факультет) (ОРУ)': 'ЮИ'
 }
 
-PATTERN = re.compile(
+GROUP_PATTERN = re.compile(
     r'/reports/schedule/Group/(\d{4,})_([12])_(\d{8})_(\d{8})\.pdf'
+)
+DEPARTMENT_PATTERN = re.compile(
+    r'/reports/schedule/prepod/(\d{2,})_([12])_(\d{8})_(\d{8})\.html'
 )
 
 
@@ -91,6 +97,52 @@ def _extract_groups(html: str) -> Iterable[GroupInfo]:
                 yield GroupInfo(id_, name, faculty_name)
 
 
+def _extract_departments(html: str) -> Iterable[DepartmentInfo]:
+    """
+    Yield DepartmentInfo items extracted from html page.
+    """
+    document = BeautifulSoup(html, 'html.parser')
+
+    tables = document \
+        .find(name='div', attrs={'class': 'column-center_rasp'}) \
+        .find_all(name='table', attrs={'style': 'border: none !important;'})
+
+    for table in tables:
+        faculties = (tag for tag in table.tbody.children if tag.name == 'tr')
+        for faculty in faculties:
+            name_tag = faculty.find(name='div',
+                                    attrs={'class': 'fak_name'})
+            faculty_id = name_tag['data-fak_id']
+            faculty_tag = faculty.find(name='div',
+                                       attrs={'id': f'fak_id_{faculty_id}'})
+            faculty_name = _faculty_with_shorthand(name_tag.string)
+            departments = (tag for tag in faculty_tag.table.tbody.children
+                           if tag.name == 'tr' and tag.find(name='div'))
+            for department in departments:
+                department_tag = department.find(name='div',
+                                                 attrs={'class': 'kafPeriod'})
+                department_name = _remove_parenthesized(department_tag.string)
+                department_id = department_tag['data-kaf_period_id'][:-1]
+
+                yield DepartmentInfo(department_id, department_name,
+                                     faculty_name)
+
+
+@lru_cache()
+def extract_departments(html: str, as_dict=False):
+    """
+    Extract information about departments from html page.
+
+    :rtype: Union[Tuple[DepartmentInfo], Dict[str, DepartmentInfo]]
+    """
+    if as_dict:
+        return {
+            item.department_id: item for item in _extract_departments(html)
+        }
+    else:
+        return tuple(_extract_departments(html))
+
+
 @lru_cache()
 def extract_groups(html: str, as_dict=False):
     """
@@ -104,6 +156,36 @@ def extract_groups(html: str, as_dict=False):
         }
     else:
         return tuple(_extract_groups(html))
+
+
+@lru_cache()
+def extract_departments_date_ranges(html: str):
+    """
+    Extract information about departments date ranges from html page.
+
+    Returns a dict object of the following structure: ::
+
+      {
+        '<department_id>': {
+          'autumn': [DateRange(<first>, <second>), ...],
+          'spring': [DateRange(<first>, <second>), ...]
+        },
+        ...
+      }
+    """
+    date_ranges = defaultdict(lambda: dict(autumn=list(), spring=list()))
+
+    for match in re.finditer(DEPARTMENT_PATTERN, html):
+        department_id, season, first, second = match.groups()
+        season = 'autumn' if season == '1' else 'spring'
+
+        date_ranges[department_id][season].append(DateRange(first, second))
+
+    for seasons in date_ranges.values():
+        for ranges in seasons.values():
+            ranges.sort(key=lambda x: as_date(x.first))
+
+    return date_ranges
 
 
 @lru_cache()
@@ -123,7 +205,7 @@ def extract_date_ranges(html: str):
     """
     date_ranges = defaultdict(lambda: dict(autumn=list(), spring=list()))
 
-    for match in re.finditer(PATTERN, html):
+    for match in re.finditer(GROUP_PATTERN, html):
         group_id, season, first, second = match.groups()
         season = 'autumn' if season == '1' else 'spring'
         date_ranges[group_id][season].append(DateRange(first, second))
@@ -136,7 +218,8 @@ def extract_date_ranges(html: str):
 
 
 __all__ = [
-    'GroupInfo', 'DateRange',
+    'DepartmentInfo', 'GroupInfo', 'DateRange',
     'extract_date_ranges', 'extract_groups',
-    'SHORTHANDS', 'PATTERN'
+    'extract_departments_date_ranges', 'extract_departments',
+    'SHORTHANDS', 'GROUP_PATTERN', 'DEPARTMENT_PATTERN'
 ]

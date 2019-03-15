@@ -28,7 +28,7 @@ class TestGroupsInfo(TestCase):
         redis_store.flushdb()
 
     def test_get_groups(self):
-        prefetch(html=self.page, redis=redis_store)
+        prefetch(groups_html=self.page, redis=redis_store)
 
         actual = sorted(get_groups())
         expected = self.info

@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify
 from utils import groups_info
 from utils.date import get_date_of_weekday
 from utils.responses import error_response
-from utils.schedule import fetch_schedule, ParseException
+from utils.schedule import fetch_group_schedule, ParseException
 from utils.transforming.api_v1 import groups_info_to_dict
 from utils.wrappers import on_exception, immutable, expires
 
@@ -63,7 +63,7 @@ def get_schedule(group_id, season):
         return jsonify({
             'group': group_name,
             'date_range': range_,
-            'weeks': fetch_schedule(group_id, season_key, range_)
+            'weeks': fetch_group_schedule(group_id, season_key, range_)
         })
     except ParseException as ex:
         return error_response(422, str(ex))

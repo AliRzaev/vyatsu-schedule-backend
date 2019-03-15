@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify
 
 from utils import date
-from utils import groups_info
+from utils import groups_info, departments_info
 from utils.date import get_date_of_weekday
 from utils.responses import error_response
-from utils.schedule import fetch_schedule, ParseException
-from utils.transforming.api_v2 import groups_info_to_list
+from utils.schedule import fetch_group_schedule, ParseException, \
+    fetch_department_schedule as fetch_teachers_schedule
+from utils.transforming.api_v2 import groups_info_to_list, \
+    departments_info_to_list
 from utils.wrappers import on_exception, no_cache, \
     immutable, expires
 
@@ -25,6 +27,22 @@ def get_groups_list():
 def get_groups_by_faculty():
     return jsonify(
         groups_info_to_list(groups_info.get_groups(), by_faculty=True))
+
+
+@api_v2_blueprint.route('/departments/list', methods=['GET'])
+@on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
+def get_departments_list():
+    return jsonify(departments_info_to_list(departments_info.get_departments()))
+
+
+@api_v2_blueprint.route('/departments/by_faculty', methods=['GET'])
+@on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
+def get_departments_by_faculty():
+    return jsonify(
+        departments_info_to_list(departments_info.get_departments(),
+                                 by_faculty=True))
 
 
 @api_v2_blueprint.route('/calls', methods=['GET'])
@@ -84,7 +102,41 @@ def get_schedule(group_id, season):
                 'dayOfWeek': d,
                 'date': today
             },
-            'weeks': fetch_schedule(group_id, season_key, range_)
+            'weeks': fetch_group_schedule(group_id, season_key, range_)
+        })
+    except ParseException as ex:
+        return error_response(422, str(ex))
+
+
+@api_v2_blueprint.route('/department/<department_id>/<season>', methods=['GET'])
+@on_exception(500)
+@expires(lambda: get_date_of_weekday(3))
+def get_department_schedule(department_id, season):
+    if season == 'autumn':
+        season_key = '1'
+    elif season == 'spring':
+        season_key = '2'
+    else:
+        return error_response(422, 'INVALID_SEASON')
+
+    department_name = departments_info.get_department_name(department_id)
+    if department_name is None:
+        return error_response(422, 'NO_SUCH_DEPARTMENT')
+
+    range_ = departments_info.get_date_range(department_id, season)
+    if range_ is None:
+        return error_response(422, 'NO_SUCH_SCHEDULE')
+
+    try:
+
+        return jsonify({
+            'department': department_name,
+            'date_range': {
+                'begin': range_[0],
+                'end': range_[1]
+            },
+            'schedules': fetch_teachers_schedule(department_id, season_key,
+                                                 range_)
         })
     except ParseException as ex:
         return error_response(422, str(ex))

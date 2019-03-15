@@ -77,10 +77,12 @@ if __name__ != '__main__':
     logger.info('Prefetching...')
 
     status = prefetch(redis=redis.redis_store)
-    if status is not None:
-        logger.info(f'Prefetch: {status} groups')
-    else:
+    if status[0] is None and status[1] is None:
         logger.info('Prefetch: nothing to do')
+    if status[0] is not None:
+        logger.info(f'Prefetch: {status[0]} groups')
+    if status[1] is not None:
+        logger.info(f'Prefetch: {status[1]} departments')
 
 if __name__ == '__main__':
     PORT = getenv('PORT', '80')
