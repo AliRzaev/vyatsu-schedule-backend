@@ -8,11 +8,11 @@ from utils.groups_info import GroupInfo, DepartmentInfo
 def groups_info_to_list(documents: Tuple[GroupInfo, ...],
                         by_faculty: bool = False) -> List[dict]:
     """
-    Transform groups information into form specified by API 2.
+    Transform information about groups into form specified by API 2.
 
-    :param documents: list of group information items
+    :param documents: list of GroupInfo objects
     :param by_faculty: group student groups by faculty
-    :return: groups information as JSON-like array
+    :return: the information about groups as JSON-like array
     """
 
     def info_to_dict(item: GroupInfo) -> Dict[str, str]:
@@ -42,11 +42,11 @@ def groups_info_to_list(documents: Tuple[GroupInfo, ...],
 def departments_info_to_list(documents: Tuple[DepartmentInfo, ...],
                              by_faculty: bool = False) -> List[dict]:
     """
-    Transform departments information into form specified by API 2.
+    Transform information about departments into form specified by API 2.
 
-    :param documents: list of department information items
+    :param documents: list of DepartmentInfo objects
     :param by_faculty: group departments by faculty
-    :return: departments information as JSON-like array
+    :return: the information about departments as JSON-like array
     """
     def info_to_dict(item: DepartmentInfo) -> Dict[str, str]:
         return {

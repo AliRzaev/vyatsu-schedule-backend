@@ -8,13 +8,13 @@ from utils.date import as_rfc2822
 
 class on_exception:
     """
-    Decorator for handling exceptions in routes and
-    converting to appropriate responses.
+    Decorator for handling exceptions raised in routes and
+    converting them to appropriate responses.
     """
     def __init__(self, status_code=500):
         """
-        Create a decorator that will send response with specified status code
-        if some exceptions will be occurred during function call.
+        Create a decorator that send response with specified status code
+        if some exceptions is occurred during function call.
 
         :param status_code: HTTP status code for response
         """

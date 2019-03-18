@@ -9,11 +9,11 @@ from utils.groups_info import GroupInfo
 def groups_info_to_dict(documents: Tuple[GroupInfo, ...],
                         by_faculty: bool = False) -> dict:
     """
-    Transform groups information into form specified by API 1.
+    Transform information about groups into form specified by API 1.
 
-    :param documents: list of group information items
+    :param documents: list of GroupInfo objects
     :param by_faculty: group student groups by faculty
-    :return: groups information as JSON-like object
+    :return: the information about groups as JSON-like object
     """
     if by_faculty:
         dict_ = defaultdict(dict)

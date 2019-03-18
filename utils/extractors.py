@@ -10,11 +10,31 @@ from bs4.element import NavigableString, Tag
 from utils.date import as_date
 
 GroupInfo = namedtuple('GroupInfo', ['group_id', 'group', 'faculty'])
+GroupInfo.__doc__ = """
+Data class that represents information about a group of student.
+
+:param group_id an ID of the group
+:param group group's name
+:param faculty a faculty this group of students is studying on
+"""
 
 DepartmentInfo = namedtuple('DepartmentInfo',
                             ['department_id', 'department', 'faculty'])
+DepartmentInfo.__doc__ = """
+Data class that represents information about a department.
+
+:param department_id: an ID of the department
+:param department: department's name
+:param faculty: a faculty whose the department is a structure unit
+"""
 
 DateRange = namedtuple('DateRange', ['first', 'second'])
+DateRange.__doc__ = """
+Data class that represents information about date range of the schedule
+
+:param first: the first date of the range
+:param second: the last date of the range
+"""
 
 SHORTHANDS = {
     'Институт биологии и биотехнологии (факультет)(ОРУ)': 'ИББТ',
@@ -33,13 +53,23 @@ SHORTHANDS = {
     'Электротехнический факультет (ОРУ)': 'ЭТФ',
     'Юридический институт (факультет) (ОРУ)': 'ЮИ'
 }
+"""
+Abbreviated names of the faculties of Vyatka State University.
+"""
 
 GROUP_PATTERN = re.compile(
     r'/reports/schedule/Group/(\d{4,})_([12])_(\d{8})_(\d{8})\.pdf'
 )
+"""
+Regular expression that matches URL link to group's schedule.
+"""
+
 DEPARTMENT_PATTERN = re.compile(
     r'/reports/schedule/prepod/(\d{2,})_([12])_(\d{8})_(\d{8})\.html'
 )
+"""
+Regular expression that matches URL link to department's schedule.
+"""
 
 
 def _remove_parenthesized(name: Union[NavigableString, str]) -> str:
@@ -55,7 +85,9 @@ def _remove_parenthesized(name: Union[NavigableString, str]) -> str:
 def _faculty_with_shorthand(faculty_name: str) -> str:
     """
     Construct string of the faculty name shorthand followed by
-    faculty name in parentheses.
+    faculty name (without text in parentheses) enclosed in parentheses.
+
+    Example: 'Юридический институт (факультет) (ОРУ)' -> 'ЮИ (Юридический институт)'
     """
     stripped_name = _remove_parenthesized(faculty_name)
     if faculty_name in SHORTHANDS:
@@ -66,8 +98,8 @@ def _faculty_with_shorthand(faculty_name: str) -> str:
 
 def _groups_as_dict(tag: Tag) -> Dict[str, str]:
     """
-    Find all occurrences of tags with links
-    to groups schedules and return dictionary: {'group name': 'group id'}
+    Extract pairs <group name, group id> from the given HTML node (tag) as
+    dict object {<group_name>: <group_id>}.
     """
 
     def _find_links_if(link: Tag) -> bool:
@@ -79,7 +111,8 @@ def _groups_as_dict(tag: Tag) -> Dict[str, str]:
 
 def _extract_groups(html: str) -> Iterable[GroupInfo]:
     """
-    Yield GroupInfo items extracted from html page.
+    Return generator object that produces a sequence of GroupInfo objects
+    with information about groups obtained from the given html page.
     """
     document = BeautifulSoup(html, 'html.parser')
 
@@ -99,7 +132,8 @@ def _extract_groups(html: str) -> Iterable[GroupInfo]:
 
 def _extract_departments(html: str) -> Iterable[DepartmentInfo]:
     """
-    Yield DepartmentInfo items extracted from html page.
+    Return generator object that produces a sequence of DepartmentInfo objects
+    with information about departments obtained from the given html page.
     """
     document = BeautifulSoup(html, 'html.parser')
 
@@ -131,7 +165,9 @@ def _extract_departments(html: str) -> Iterable[DepartmentInfo]:
 @lru_cache()
 def extract_departments(html: str, as_dict=False):
     """
-    Extract information about departments from html page.
+    Extract information about departments from the given html page as
+    DepartmentInfo objects. Return dict object {<department_id>: DepartmentInfo}
+    if as_dict = True, otherwise return tuple of DepartmentInfo objects.
 
     :rtype: Union[Tuple[DepartmentInfo], Dict[str, DepartmentInfo]]
     """
@@ -146,7 +182,9 @@ def extract_departments(html: str, as_dict=False):
 @lru_cache()
 def extract_groups(html: str, as_dict=False):
     """
-    Extract information about groups from html page.
+    Extract information about groups from the given html page as GroupInfo
+    objects. Return dict object {<group_id>: GroupInfo}
+    if as_dict = True, otherwise return tuple of GroupInfo objects.
 
     :rtype: Union[Tuple[GroupInfo], Dict[str, GroupInfo]]
     """
@@ -161,9 +199,10 @@ def extract_groups(html: str, as_dict=False):
 @lru_cache()
 def extract_departments_date_ranges(html: str):
     """
-    Extract information about departments date ranges from html page.
+    Extract information about date ranges of the departments' schedules
+    from the given html page.
 
-    Returns a dict object of the following structure: ::
+    Return a dict object of the following structure: ::
 
       {
         '<department_id>': {
@@ -172,6 +211,9 @@ def extract_departments_date_ranges(html: str):
         },
         ...
       }
+
+    The lists of DateRange objects ('autumn' and 'spring') are sorted
+    in ascending order.
     """
     date_ranges = defaultdict(lambda: dict(autumn=list(), spring=list()))
 
@@ -191,7 +233,8 @@ def extract_departments_date_ranges(html: str):
 @lru_cache()
 def extract_date_ranges(html: str):
     """
-    Extract information about schedules date ranges from html page.
+    Extract information about date ranges of the groups' schedules from the
+    given html page.
 
     Returns a dict object of the following structure: ::
 
@@ -202,6 +245,9 @@ def extract_date_ranges(html: str):
         },
         ...
       }
+
+    The lists of DateRange objects ('autumn' and 'spring') are sorted
+    in ascending order.
     """
     date_ranges = defaultdict(lambda: dict(autumn=list(), spring=list()))
 
