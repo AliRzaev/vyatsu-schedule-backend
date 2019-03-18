@@ -128,12 +128,18 @@ def get_department_schedule(department_id, season):
         return error_response(422, 'NO_SUCH_SCHEDULE')
 
     try:
-
+        w, d = date.get_date_indexes(range_[0])
+        today = date.get_date_by_indexes(range_[0], w, d)
         return jsonify({
             'department': department_name,
             'date_range': {
                 'begin': range_[0],
                 'end': range_[1]
+            },
+            'today': {
+                'week': w,
+                'dayOfWeek': d,
+                'date': today
             },
             'schedules': fetch_teachers_schedule(department_id, season_key,
                                                  range_)

@@ -46,7 +46,7 @@ def fetch_department_schedule(department_id: str, season_key: str,
         ]
         return {
             'teacher': teacher_name,
-            'schedule': schedule
+            'schedule': [schedule[:6], schedule[6:]]
         }
 
     xls_url = _DEPARTMENT_URL_TEMPLATE.format(department_id, season_key,
