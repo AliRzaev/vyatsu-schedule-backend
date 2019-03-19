@@ -6,7 +6,7 @@ from typing import Tuple
 
 def as_date(date_str: str) -> date:
     """
-    Return the date corresponding to a date_str in the format 'ddMMyyyy'.
+    Return a date corresponding to a date_str in the format 'ddMMyyyy'.
     """
     d = int(date_str[:2])
     m = int(date_str[2:4])
@@ -16,7 +16,7 @@ def as_date(date_str: str) -> date:
 
 def as_rfc2822(date_: date) -> str:
     """
-    Returns a date string as per RFC 2822
+    Return a date string as per RFC 2822.
     """
     stamp = mktime(datetime(date_.year, date_.month, date_.day).timetuple())
     return formatdate(stamp, usegmt=True)
@@ -24,15 +24,13 @@ def as_rfc2822(date_: date) -> str:
 
 def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     """
-    Compute week and day indexes from the begin of the first
-    day of schedule range for today or another given day.
-    If the given is sunday, function returns indexes of the
-    next day after sunday.
+    Compute week and day indexes of the given day from the first day
+    of the date range of schedule. If the given day is Sunday, function returns
+    indexes for a next day.
 
-    :param first_date: the begin of the schedule range
-    :param today: the day for which indexes will be computed.
-    :return: tuple of two numbers: week index (0 or 1)
-             and day index (from 0 to 5 inclusive)
+    :param first_date: the beginning of the date range
+    :param today: the day the indexes will be computed for
+    :return: tuple of two numbers: week index (0..1) and day index (0..5)
     """
     if today is None:
         today = get_moscow_today()
@@ -52,11 +50,11 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
 
 def get_current_season(today: date = None) -> str:
     """
-    Determine which season does given day belong to.
+    Determine a season the given day belongs to.
     Season 'autumn': from August, 1 to December, 31.
     Season 'spring': from January, 1 to July, 31.
 
-    :param today: the day for which season will be determined
+    :param today: the day the season will be determined for
     :return: 'autumn' or 'spring'
     """
     if today is None:
@@ -71,13 +69,14 @@ def get_current_season(today: date = None) -> str:
 # TODO: write unit tests
 def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     """
-    Get the date that corresponds given day and week
-    indexes according to the begin date - first_date.
+    Get the date that corresponds the given day and week
+    indexes according to the beginning of the date range.
 
-    :param first_date: date string of the following format: 'ddMMyyyy'
-    :param week_index: week index from 0 to 1
-    :param day_index: day index, from 0 to 6
-    :return: date string of the following format: 'ddMMyyyy'
+    :param first_date: the beginning of the date range as string of
+                       the following format: 'ddMMyyyy'
+    :param week_index: week index (0..1)
+    :param day_index: day index (0..6)
+    :return: the date as string of the following format: 'ddMMyyyy'
     """
     day_offset = week_index * 7 + day_index
     delta = timedelta(days=day_offset)
@@ -90,7 +89,7 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
 
 def get_date_of_weekday(weekday: int, today: date = None) -> date:
     """
-    Get the nearest (may be today) date of the weekday.
+    Get the nearest (may be today) date of the given weekday (0..6).
     """
     if today is None:
         today = get_moscow_today()

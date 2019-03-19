@@ -1,11 +1,9 @@
 from json import load, loads
-from logging import CRITICAL
+from logging import disable, CRITICAL
 from unittest import TestCase
 
-import server
-from config.redis import get_instance
+from config.redis import redis_store
 from server import app
-from utils.logging import get_logger
 from utils.prefetch import prefetch
 
 
@@ -17,7 +15,7 @@ class TestApiV2Groups(TestCase):
     """
 
     def setUp(self):
-        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+        disable(CRITICAL)
 
         self.app = app.test_client()
         self.app.testing = True
@@ -35,10 +33,10 @@ class TestApiV2Groups(TestCase):
             for faculty in self.groups_by_faculty:
                 faculty['groups'].sort(key=lambda x: x['name'])
 
-        get_instance().flushdb()
+        redis_store.flushdb()
 
     def test_groups_list(self):
-        prefetch(html=self.page)
+        prefetch(groups_html=self.page, redis=redis_store)
 
         response = self.app.get('/api/v2/groups/list')
         actual = loads(response.data)
@@ -47,7 +45,7 @@ class TestApiV2Groups(TestCase):
         self.assertEqual(actual, expected, 'Invalid data')
 
     def test_groups_by_faculty(self):
-        prefetch(html=self.page)
+        prefetch(groups_html=self.page, redis=redis_store)
 
         response = self.app.get('/api/v2/groups/by_faculty')
         actual = loads(response.data)
@@ -56,10 +54,57 @@ class TestApiV2Groups(TestCase):
         self.assertEqual(actual, expected, 'Invalid data')
 
 
+class TestApiV2Departments(TestCase):
+    """
+    Be attentive! This test case may wipe out data in your database.
+    Please ensure that you run test case with database for testing,
+    not for production.
+    """
+
+    def setUp(self):
+        disable(CRITICAL)
+
+        self.app = app.test_client()
+        self.app.testing = True
+
+        with open('tests/resources/html/departments_info_page.html',
+                  'r', encoding='utf-8') as file:
+            self.page = file.read()
+        with open('tests/resources/v2/test_departments_list.json',
+                  'r', encoding='utf-8') as file:
+            self.departments_list = sorted(load(file), key=lambda x: x['name'])
+        with open('tests/resources/v2/test_departments_by_faculty.json',
+                  'r', encoding='utf-8') as file:
+            self.departments_by_faculty = load(file)
+            self.departments_by_faculty.sort(key=lambda x: x['faculty'])
+            for faculty in self.departments_by_faculty:
+                faculty['departments'].sort(key=lambda x: x['name'])
+
+        redis_store.flushdb()
+
+    def test_departments_list(self):
+        prefetch(departments_html=self.page, redis=redis_store)
+
+        response = self.app.get('/api/v2/departments/list')
+        actual = loads(response.data)
+        expected = self.departments_list
+
+        self.assertEqual(actual, expected, 'Invalid data')
+
+    def test_departments_by_faculty(self):
+        prefetch(departments_html=self.page, redis=redis_store)
+
+        response = self.app.get('/api/v2/departments/by_faculty')
+        actual = loads(response.data)
+        expected = self.departments_by_faculty
+
+        self.assertEqual(actual, expected, 'Invalid data')
+
+
 class TestApiV2Calls(TestCase):
 
     def setUp(self):
-        get_logger(server.__name__).setLevel(CRITICAL)  # disable logging
+        disable(CRITICAL)
 
         self.app = app.test_client()
         self.app.testing = True

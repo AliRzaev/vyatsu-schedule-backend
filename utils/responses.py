@@ -1,16 +1,6 @@
-from flask import Response
-from json import dumps
+from flask import jsonify, make_response
 
 
-class Error(Response):
-
-    def __init__(self, status: int, message: str):
-        response = dumps({
-            'error': message
-        }, ensure_ascii=False)
-
-        super(Response, self).__init__(
-            status=status,
-            response=response,
-            mimetype='application/json'
-        )
+def error_response(status: int, message: str):
+    response = jsonify({'error': message})
+    return make_response((response, status, ()))

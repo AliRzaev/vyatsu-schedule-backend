@@ -5,7 +5,7 @@ from typing import Dict, Optional, Tuple
 
 import requests
 
-from config.redis import get_instance, KEY_GROUPS, KEY_RANGE_PREFIX
+from config.redis import redis_store, KEY_GROUPS, KEY_RANGE_PREFIX
 from utils.date import get_date_of_weekday
 from utils.extractors import *
 
@@ -27,28 +27,31 @@ def get_page() -> str:
 
 
 def get_groups() -> Tuple[GroupInfo, ...]:
-    data = loads(get_instance().get(KEY_GROUPS))
+    data = loads(redis_store.get(KEY_GROUPS))
     return tuple(GroupInfo(*args) for args in data)
 
 
 def get_groups_as_dict() -> Dict[str, GroupInfo]:
-    data = loads(get_instance().get(KEY_GROUPS))
+    data = loads(redis_store.get(KEY_GROUPS))
     return {
         id_: GroupInfo(id_, name, faculty) for id_, name, faculty in data
     }
 
 
 def get_group_name(group_id: str) -> Optional[str]:
-    group_info = loads(get_instance().get(f'{KEY_RANGE_PREFIX}{group_id}'))
-    if group_info is not None:
-        return group_info[0]
-    else:
+    key = f'{KEY_RANGE_PREFIX}{group_id}'
+    value = redis_store.get(key)
+
+    if value is None:
         return None
+
+    group_info = loads(value)
+    return group_info[0]
 
 
 def get_date_range(group_id: str, season: str) -> Optional[DateRange]:
     key = f'{KEY_RANGE_PREFIX}{group_id}'
-    _, autumn, spring = loads(get_instance().get(key))
+    _, autumn, spring = loads(redis_store.get(key))
 
     if season == 'autumn':
         range_ = autumn

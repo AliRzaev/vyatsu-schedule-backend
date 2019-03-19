@@ -1,22 +1,20 @@
-from flask import Response
+from functools import wraps
 from json import dumps
 
-from utils.date import as_rfc2822
-from utils.logging import get_logger
-from functools import wraps
+from flask import Response
 
-_logger = get_logger(__name__)
+from utils.date import as_rfc2822
 
 
 class on_exception:
     """
-    Decorator for handling exceptions in routes and
-    converting to appropriate responses.
+    Decorator for handling exceptions raised in routes and
+    converting them to appropriate responses.
     """
     def __init__(self, status_code=500):
         """
-        Create a decorator that will send response with specified status code
-        if some exceptions will be occurred during function call.
+        Create a decorator that send response with specified status code
+        if some exceptions is occurred during function call.
 
         :param status_code: HTTP status code for response
         """
@@ -34,7 +32,6 @@ class on_exception:
             try:
                 return route(*args, **kwargs)
             except Exception as ex:
-                _logger.exception('Error occurred at {}'.format(route.__name__))
                 response = dumps({
                     'error': str(ex)[:40]
                 })
@@ -45,31 +42,6 @@ class on_exception:
                 )
 
         return wrapper_fun
-
-
-def content_type_json(route):
-    """
-    This decorator converts the result of the wrapped function into JSON string.
-
-    :param route: the function to be wrapped
-    :return: JSON string or unmodified result
-             (if result isn't a list or a dict).
-    :raise JSONDecodeError if some errors occur during serialization.
-    """
-    @wraps(route)
-    def wrapper_fun(*args, **kwargs):
-        route_res = route(*args, **kwargs)
-        if isinstance(route_res, (list, dict)):
-            response = dumps(route_res, ensure_ascii=False)
-            return Response(
-                response=response,
-                status=200,
-                mimetype='application/json'
-            )
-        else:
-            return route_res
-
-    return wrapper_fun
 
 
 def no_cache(route):
