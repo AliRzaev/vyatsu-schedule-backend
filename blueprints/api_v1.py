@@ -1,18 +1,20 @@
+from datetime import timedelta
+
 from flask import Blueprint, jsonify
 
-from utils.date import get_date_of_weekday
+from utils.date import get_moscow_today
+from utils.repository import get_repository
 from utils.responses import error_response
 from utils.schedule import fetch_group_schedule, ParseException
 from utils.transforming.api_v1 import groups_info_to_dict
 from utils.wrappers import on_exception, immutable, expires
-from utils.repository import get_repository
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
 
 @api_v1_blueprint.route('/groups/list', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_groups_list():
     groups = get_repository().get_groups()
     return jsonify(groups_info_to_dict(groups))
@@ -20,7 +22,7 @@ def get_groups_list():
 
 @api_v1_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_groups_by_faculty():
     groups = get_repository().get_groups()
     return jsonify(groups_info_to_dict(groups, by_faculty=True))
@@ -43,7 +45,7 @@ def get_calls():
 
 @api_v1_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_schedule(group_id, season):
     if season == 'autumn':
         season_key = '1'

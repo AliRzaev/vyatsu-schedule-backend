@@ -1,22 +1,23 @@
+from datetime import timedelta
+
 from flask import Blueprint, jsonify
 
 from utils import date
-from utils.date import get_date_of_weekday
+from utils.date import get_moscow_today
 from utils.repository import get_repository
 from utils.responses import error_response
 from utils.schedule import fetch_group_schedule, ParseException, \
     fetch_department_schedule as fetch_teachers_schedule
 from utils.transforming.api_v2 import groups_info_to_list, \
     departments_info_to_list
-from utils.wrappers import on_exception, no_cache, \
-    immutable, expires
+from utils.wrappers import on_exception, immutable, expires
 
 api_v2_blueprint = Blueprint('api_v2', __name__)
 
 
 @api_v2_blueprint.route('/groups/list', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_groups_list():
     groups = get_repository().get_groups()
     return jsonify(groups_info_to_list(groups))
@@ -24,7 +25,7 @@ def get_groups_list():
 
 @api_v2_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_groups_by_faculty():
     groups = get_repository().get_groups()
     return jsonify(
@@ -33,7 +34,7 @@ def get_groups_by_faculty():
 
 @api_v2_blueprint.route('/departments/list', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_departments_list():
     departments = get_repository().get_departments()
     return jsonify(departments_info_to_list(departments))
@@ -41,7 +42,7 @@ def get_departments_list():
 
 @api_v2_blueprint.route('/departments/by_faculty', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_departments_by_faculty():
     departments = get_repository().get_departments()
     return jsonify(departments_info_to_list(departments, by_faculty=True))
@@ -64,7 +65,7 @@ def get_calls():
 
 @api_v2_blueprint.route('/season/current', methods=['GET'])
 @on_exception(500)
-@no_cache
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_current_season():
     return jsonify({
         'season': date.get_current_season()
@@ -73,7 +74,7 @@ def get_current_season():
 
 @api_v2_blueprint.route('/schedule/<group_id>/<season>', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_schedule(group_id, season):
     if season == 'autumn':
         season_key = '1'
@@ -112,7 +113,7 @@ def get_schedule(group_id, season):
 
 @api_v2_blueprint.route('/department/<department_id>/<season>', methods=['GET'])
 @on_exception(500)
-@expires(lambda: get_date_of_weekday(3))
+@expires(lambda: get_moscow_today() + timedelta(days=1))
 def get_department_schedule(department_id, season):
     if season == 'autumn':
         season_key = '1'
