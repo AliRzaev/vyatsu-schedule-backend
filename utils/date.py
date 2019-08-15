@@ -87,16 +87,5 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     return '{d:02}{m:02}{y:04}'.format(d=begin.day, m=begin.month, y=begin.year)
 
 
-def get_date_of_weekday(weekday: int, today: date = None) -> date:
-    """
-    Get the nearest (may be today) date of the given weekday (0..6).
-    """
-    if today is None:
-        today = get_moscow_today()
-
-    offset = (7 + weekday - today.weekday()) % 7
-    return today + timedelta(days=offset)
-
-
 def get_moscow_today() -> date:
     return (datetime.utcnow() + timedelta(hours=3)).date()

@@ -44,24 +44,6 @@ class on_exception:
         return wrapper_fun
 
 
-def no_cache(route):
-    """
-    Turn off caching for the responses of the given route.
-    """
-    @wraps(route)
-    def wrapper_fun(*args, **kwargs):
-        route_res = route(*args, **kwargs)
-
-        if isinstance(route_res, Response):
-            route_res.headers.set('Cache-Control',
-                                  'no-cache, no-store, must-revalidate')
-            return route_res
-        else:
-            raise TypeError('Route must return a Response object')
-
-    return wrapper_fun
-
-
 def immutable(route):
     """
     Aggressive caching, store the responses of the given route
