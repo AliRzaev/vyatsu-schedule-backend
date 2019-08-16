@@ -1,9 +1,10 @@
+import logging
 from datetime import datetime
-from logging.config import dictConfig
 from os import getenv, environ
 
 from flask import Flask, request
 from flask_cors import CORS
+from loguru import logger
 
 import databases
 from blueprints.api_v1 import api_v1_blueprint
@@ -11,31 +12,19 @@ from blueprints.api_v2 import api_v2_blueprint
 from blueprints.checks import checks_blueprint
 from utils import prefetch
 
-# Configure logging
-dictConfig({
-    'version': 1,
-    'formatters': {
-        'default': {
-            'format': '[%(asctime)s] [%(process)d] [%(levelname)s] [%(name)s] '
-                      '%(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S %z'
-        }
-    },
-    'handlers': {
-        'wsgi': {
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://flask.logging.wsgi_errors_stream',
-            'formatter': 'default'
-        }
-    },
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
 app = Flask(__name__)
-logger = app.logger
+
+# Set up logging
+werkzeug = logging.getLogger('werkzeug')
+werkzeug.disabled = True
+app.logger.disabled = True
+
+
+@app.after_request
+def log(response):
+    logger.info(f'{request.method} {request.full_path} {response.status_code}')
+    return response
+
 
 CORS(api_v1_blueprint, methods=['GET'])
 CORS(api_v2_blueprint, methods=['GET'])
@@ -47,21 +36,6 @@ if 'REDIS_URL' in environ:
 else:
     raise ValueError('REDIS_URL is not defined')
 
-# Set up MongoDB
-if 'MONGODB_URI' in environ:
-    app.config['MONGO_URI'] = environ['MONGODB_URI']
-    databases.mongo.init_app(app)
-
-
-    @api_v1_blueprint.before_request
-    @api_v2_blueprint.before_request
-    def log():
-        databases.mongo.db.logs.insert_one({
-            'path': request.full_path,
-            'useragent': request.user_agent.string,
-            'date': datetime.now()
-        })
-
 # Set up CLI commands
 prefetch.init_app(app)
 
@@ -70,11 +44,20 @@ app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
 app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
 app.register_blueprint(checks_blueprint)
 
-# Set up logging
-if getenv('FLASK_ENV') == 'production':
-    @app.before_request
-    def log():
-        logger.info('{} {}'.format(request.method, request.full_path))
+# Set up MongoDB
+if 'MONGODB_URI' in environ:
+    app.config['MONGO_URI'] = environ['MONGODB_URI']
+    databases.mongo.init_app(app)
+
+
+    @app.after_request
+    def log(response):
+        databases.mongo.db.logs.insert_one({
+            'path': request.full_path,
+            'useragent': request.user_agent.string,
+            'date': datetime.now(),
+            'status': response.status_code
+        })
 
 if getenv('FLASK_ENV') == 'production':
     logger.info('Fetching data...')

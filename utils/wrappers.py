@@ -1,7 +1,8 @@
 from functools import wraps
 from json import dumps
 
-from flask import Response
+from flask import Response, has_app_context
+from loguru import logger
 
 from utils.date import as_rfc2822
 
@@ -32,6 +33,10 @@ class on_exception:
             try:
                 return route(*args, **kwargs)
             except Exception as ex:
+                if has_app_context():
+                    logger.exception(
+                        'An exception occurred during request handling'
+                    )
                 response = dumps({
                     'error': str(ex)[:40]
                 })

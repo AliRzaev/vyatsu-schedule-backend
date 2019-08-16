@@ -1,6 +1,7 @@
 from json import load, loads
-from logging import disable, CRITICAL
 from unittest import TestCase
+
+from loguru import logger
 
 from server import app
 from utils.extractors import extract_groups, extract_date_ranges
@@ -15,7 +16,7 @@ class TestApiV1Groups(TestCase):
     """
 
     def setUp(self):
-        disable(CRITICAL)
+        logger.disable('server')
 
         with open('tests/resources/html/groups_info_page.html',
                   'r', encoding='utf-8') as file:
@@ -59,7 +60,7 @@ class TestApiV1Groups(TestCase):
 class TestApiV1Calls(TestCase):
 
     def setUp(self):
-        disable(CRITICAL)
+        logger.disable('server')
 
         with open('tests/resources/v1/test_calls.json',
                   'r', encoding='utf-8') as file:
