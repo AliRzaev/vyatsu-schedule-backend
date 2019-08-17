@@ -1,9 +1,14 @@
 from json import load
 from unittest import TestCase
 
-from server import app
+from config import TestingConfig
+from server import create_app
 from utils.extractors import *
 from utils.repository import get_repository
+
+
+def _create_app():
+    return create_app(TestingConfig())
 
 
 class TestDepartmentsInfo(TestCase):
@@ -33,6 +38,7 @@ class TestDepartmentsInfo(TestCase):
         )
 
     def test_get_departments(self):
+        app = _create_app()
         with app.app_context():
             self._prefetch()
 

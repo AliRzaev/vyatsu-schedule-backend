@@ -1,9 +1,14 @@
 from json import load
 from unittest import TestCase
 
-from server import app
+from config import TestingConfig
+from server import create_app
 from utils.extractors import *
 from utils.repository import get_repository
+
+
+def _create_app():
+    return create_app(TestingConfig())
 
 
 class TestGroupsInfo(TestCase):
@@ -31,6 +36,7 @@ class TestGroupsInfo(TestCase):
         get_repository().update_groups_info(groups, groups_date_ranges, True)
 
     def test_get_groups(self):
+        app = _create_app()
         with app.app_context():
             self._prefetch()
 

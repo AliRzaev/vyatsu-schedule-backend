@@ -3,9 +3,14 @@ from unittest import TestCase
 
 from loguru import logger
 
-from server import app
+from config import TestingConfig
+from server import create_app
 from utils.extractors import extract_groups, extract_date_ranges
 from utils.repository import get_repository
+
+
+def _create_app():
+    return create_app(TestingConfig())
 
 
 class TestApiV1Groups(TestCase):
@@ -35,6 +40,7 @@ class TestApiV1Groups(TestCase):
         get_repository().update_groups_info(groups, groups_date_ranges, True)
 
     def test_groups_list(self):
+        app = _create_app()
         with app.test_client() as client:
             with app.app_context():
                 self._prefetch()
@@ -46,6 +52,7 @@ class TestApiV1Groups(TestCase):
             self.assertEqual(actual, expected, 'Invalid data')
 
     def test_groups_by_faculty(self):
+        app = _create_app()
         with app.test_client() as client:
             with app.app_context():
                 self._prefetch()
@@ -67,6 +74,7 @@ class TestApiV1Calls(TestCase):
             self.calls = load(file)
 
     def test_calls(self):
+        app = _create_app()
         with app.test_client() as client:
             response = client.get('/api/v1/calls')
             actual = loads(response.data)
