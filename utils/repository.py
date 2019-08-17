@@ -29,23 +29,22 @@ class Repository:
         self._redis_store = redis_store
 
     def get_groups(self) -> Tuple[GroupInfo, ...]:
-        data = loads(self._redis_store.get(Repository.KEY_GROUPS)) or []
+        data = self._get_or_default(Repository.KEY_GROUPS, [])
         return tuple(GroupInfo(*args) for args in data)
 
     def get_groups_as_dict(self) -> Dict[str, GroupInfo]:
-        data = loads(self._redis_store.get(Repository.KEY_GROUPS)) or []
+        data = self._get_or_default(Repository.KEY_GROUPS, [])
         return {
             id_: GroupInfo(id_, name, faculty) for id_, name, faculty in data
         }
 
     def get_group_name(self, group_id: str) -> Optional[str]:
         key = f'{Repository.KEY_RANGE_PREFIX}{group_id}'
-        value = self._redis_store.get(key)
+        group_info = self._get_or_default(key)
 
-        if value is None:
+        if group_info is None:
             return None
 
-        group_info = loads(value)
         return group_info[0]
 
     def get_group_date_range(self, group_id: str, season: str) -> Optional[DateRange]:
@@ -53,23 +52,22 @@ class Repository:
         return self._get_date_range(key, season)
 
     def get_departments(self) -> Tuple[DepartmentInfo, ...]:
-        data = loads(self._redis_store.get(Repository.KEY_DEPARTMENTS)) or []
+        data = self._get_or_default(Repository.KEY_DEPARTMENTS, [])
         return tuple(DepartmentInfo(*args) for args in data)
 
     def get_departments_as_dict(self) -> Dict[str, DepartmentInfo]:
-        data = loads(self._redis_store.get(Repository.KEY_DEPARTMENTS)) or []
+        data = self._get_or_default(Repository.KEY_DEPARTMENTS, [])
         return {
             id_: DepartmentInfo(id_, name, faculty) for id_, name, faculty in data
         }
 
     def get_department_name(self, department_id: str) -> Optional[str]:
         key = f'{Repository.KEY_DEPARTMENT_RANGE_PREFIX}{department_id}'
-        value = self._redis_store.get(key)
+        department_info = self._get_or_default(key)
 
-        if value is None:
+        if department_info is None:
             return None
 
-        department_info = loads(value)
         return department_info[0]
 
     def get_department_date_range(self, department_id: str, season: str) -> Optional[DateRange]:
@@ -135,7 +133,11 @@ class Repository:
             return ranges[0]
 
     def _get_date_range(self, key: str, season: str) -> Optional[DateRange]:
-        _, autumn, spring = loads(self._redis_store.get(key))
+        value = self._get_or_default(key)
+        if value is None:
+            return None
+
+        _, autumn, spring = value
 
         if season == 'autumn':
             range_ = autumn
@@ -146,6 +148,13 @@ class Repository:
             return DateRange(*range_)
         else:
             return None
+
+    def _get_or_default(self, key, default=None):
+        value = self._redis_store.get(key)
+        if value is None:
+            return default
+        else:
+            return loads(value)
 
 
 def get_repository():
