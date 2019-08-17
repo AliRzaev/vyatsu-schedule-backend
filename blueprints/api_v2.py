@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 
 from utils import date
-from utils import groups_info, departments_info
 from utils.date import get_date_of_weekday
+from utils.repository import get_repository
 from utils.responses import error_response
 from utils.schedule import fetch_group_schedule, ParseException, \
     fetch_department_schedule as fetch_teachers_schedule
@@ -18,31 +18,33 @@ api_v2_blueprint = Blueprint('api_v2', __name__)
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_groups_list():
-    return jsonify(groups_info_to_list(groups_info.get_groups()))
+    groups = get_repository().get_groups()
+    return jsonify(groups_info_to_list(groups))
 
 
 @api_v2_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_groups_by_faculty():
+    groups = get_repository().get_groups()
     return jsonify(
-        groups_info_to_list(groups_info.get_groups(), by_faculty=True))
+        groups_info_to_list(groups, by_faculty=True))
 
 
 @api_v2_blueprint.route('/departments/list', methods=['GET'])
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_departments_list():
-    return jsonify(departments_info_to_list(departments_info.get_departments()))
+    departments = get_repository().get_departments()
+    return jsonify(departments_info_to_list(departments))
 
 
 @api_v2_blueprint.route('/departments/by_faculty', methods=['GET'])
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_departments_by_faculty():
-    return jsonify(
-        departments_info_to_list(departments_info.get_departments(),
-                                 by_faculty=True))
+    departments = get_repository().get_departments()
+    return jsonify(departments_info_to_list(departments, by_faculty=True))
 
 
 @api_v2_blueprint.route('/calls', methods=['GET'])
@@ -80,11 +82,11 @@ def get_schedule(group_id, season):
     else:
         return error_response(422, 'INVALID_SEASON')
 
-    group_name = groups_info.get_group_name(group_id)
+    group_name = get_repository().get_group_name(group_id)
     if group_name is None:
         return error_response(422, 'NO_SUCH_GROUP')
 
-    range_ = groups_info.get_date_range(group_id, season)
+    range_ = get_repository().get_group_date_range(group_id, season)
     if range_ is None:
         return error_response(422, 'NO_SUCH_SCHEDULE')
 
@@ -119,11 +121,11 @@ def get_department_schedule(department_id, season):
     else:
         return error_response(422, 'INVALID_SEASON')
 
-    department_name = departments_info.get_department_name(department_id)
+    department_name = get_repository().get_department_name(department_id)
     if department_name is None:
         return error_response(422, 'NO_SUCH_DEPARTMENT')
 
-    range_ = departments_info.get_date_range(department_id, season)
+    range_ = get_repository().get_department_date_range(department_id, season)
     if range_ is None:
         return error_response(422, 'NO_SUCH_SCHEDULE')
 

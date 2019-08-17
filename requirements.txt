@@ -1,3 +1,4 @@
+click==7.0
 gunicorn==19.9.0
 flask==1.0
 Flask-Redis==0.3.0

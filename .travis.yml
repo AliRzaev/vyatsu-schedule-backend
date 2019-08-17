@@ -1,6 +1,7 @@
 language: python
 python:
   - "3.6"
+  - "3.7"
 env:
   - REDIS_URL=redis://localhost:6379/0 MONGODB_URI=mongodb://travis:password@localhost:27017/database
 services:

@@ -26,7 +26,7 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     """
     Compute week and day indexes of the given day from the first day
     of the date range of schedule. If the given day is Sunday, function returns
-    indexes for a next day.
+    indexes for a next day by modulo 14.
 
     :param first_date: the beginning of the date range
     :param today: the day the indexes will be computed for

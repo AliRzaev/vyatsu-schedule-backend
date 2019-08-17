@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify
 
-from utils import groups_info
 from utils.date import get_date_of_weekday
 from utils.responses import error_response
 from utils.schedule import fetch_group_schedule, ParseException
 from utils.transforming.api_v1 import groups_info_to_dict
 from utils.wrappers import on_exception, immutable, expires
+from utils.repository import get_repository
 
 api_v1_blueprint = Blueprint('api_v1', __name__)
 
@@ -14,15 +14,16 @@ api_v1_blueprint = Blueprint('api_v1', __name__)
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_groups_list():
-    return jsonify(groups_info_to_dict(groups_info.get_groups()))
+    groups = get_repository().get_groups()
+    return jsonify(groups_info_to_dict(groups))
 
 
 @api_v1_blueprint.route('/groups/by_faculty', methods=['GET'])
 @on_exception(500)
 @expires(lambda: get_date_of_weekday(3))
 def get_groups_by_faculty():
-    return jsonify(
-        groups_info_to_dict(groups_info.get_groups(), by_faculty=True))
+    groups = get_repository().get_groups()
+    return jsonify(groups_info_to_dict(groups, by_faculty=True))
 
 
 @api_v1_blueprint.route('/calls', methods=['GET'])
@@ -51,11 +52,11 @@ def get_schedule(group_id, season):
     else:
         return error_response(422, 'INVALID_SEASON')
 
-    group_name = groups_info.get_group_name(group_id)
+    group_name = get_repository().get_group_name(group_id)
     if group_name is None:
         return error_response(422, 'NO_SUCH_GROUP')
 
-    range_ = groups_info.get_date_range(group_id, season)
+    range_ = get_repository().get_group_date_range(group_id, season)
     if range_ is None:
         return error_response(422, 'NO_SUCH_SCHEDULE')
 

@@ -2,8 +2,7 @@ from flask import Blueprint, make_response, jsonify
 from pymongo.errors import PyMongoError
 from redis import RedisError
 
-from config.mongodb import mongo
-from config.redis import redis_store
+from databases import mongo, redis
 
 checks_blueprint = Blueprint('checks', __name__)
 
@@ -16,7 +15,7 @@ def health_check():
 @checks_blueprint.route('/ready_check')
 def ready_check():
     try:
-        if not redis_store.ping():
+        if not redis.ping():
             return make_response((jsonify(status='Redis is unavailable'), 503))
 
         if mongo.db is not None:
