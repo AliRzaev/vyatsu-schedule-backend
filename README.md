@@ -22,7 +22,23 @@
 
 `MONGODB_URI` - URI базы данных MongoDB в формате 
 `mongodb://<user>:<password>@<host>:<port>/<database>`. 
-Поле `<database>` обязательно. Используется для ведения логов.
+Поле `<database>` обязательно.
+
+Используется для ведения логов. В журнал записываются только запросы к API. 
+Коллекция: `logs`.
+
+<details>
+<summary>Формат записи</summary>
+
+```json
+{
+    "path": "<full URL path, string>",
+    "useragent": "<user agent, string>",
+    "date": "<timestamp of request, date>",
+    "status": "<response status code, number>"
+}
+```
+</details>
 
 ### Тесты
 
