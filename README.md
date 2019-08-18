@@ -44,7 +44,7 @@
 
 #### Модульные тесты
 
-`python -m unittest discover -s tests`
+`python -m pytest --pyargs tests.unit`
 
 #### Интеграционные тесты
 
@@ -55,7 +55,7 @@
 Перед запуском тестов удостоверьтесь, что используете тестовую базу данных, а не 
 основную.
 
-`python -m unittest discover -s tests -p it*.py`
+`python -m pytest --pyargs tests.integration`
 
 ### Запуск 
 
