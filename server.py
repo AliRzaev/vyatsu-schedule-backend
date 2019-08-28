@@ -1,89 +1,79 @@
+import logging
 from datetime import datetime
-from logging.config import dictConfig
-from os import getenv
 
 from flask import Flask, request
 from flask_cors import CORS
+from loguru import logger
 
+import databases
 from blueprints.api_v1 import api_v1_blueprint
 from blueprints.api_v2 import api_v2_blueprint
 from blueprints.checks import checks_blueprint
-from config import redis, mongodb
-from utils.prefetch import prefetch
-
-# Configure logging
-dictConfig({
-    'version': 1,
-    'formatters': {
-        'default': {
-            'format': '[%(asctime)s] [%(process)d] [%(levelname)s] [%(name)s] '
-                      '%(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S %z'
-        }
-    },
-    'handlers': {
-        'wsgi': {
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://flask.logging.wsgi_errors_stream',
-            'formatter': 'default'
-        }
-    },
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
-app = Flask(__name__)
-logger = app.logger
-
-CORS(api_v1_blueprint, methods=['GET'])
-CORS(api_v2_blueprint, methods=['GET'])
-
-# Set up Redis
-REDIS_URL = getenv('REDIS_URL', '')
-if REDIS_URL:
-    app.config['REDIS_URL'] = REDIS_URL
-    redis.redis_store.init_app(app)
-else:
-    raise ValueError('REDIS_URL is not defined')
-
-# Set up MongoDB
-MONGODB_URI = getenv('MONGODB_URI', '')
-if MONGODB_URI:
-    app.config['MONGO_URI'] = MONGODB_URI
-    mongodb.mongo.init_app(app)
+from utils import prefetch
+from utils import schedule
 
 
-    @api_v1_blueprint.before_request
-    @api_v2_blueprint.before_request
-    def log():
-        mongodb.mongo.db.logs.insert_one({
-            'path': request.full_path,
-            'useragent': request.user_agent.string,
-            'date': datetime.now()
-        })
+def create_app(config_obj):
+    app = Flask(__name__)
+    app.config.from_object(config_obj)
 
-app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
-app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
-app.register_blueprint(checks_blueprint)
+    # Set up logging
+    werkzeug = logging.getLogger('werkzeug')
+    werkzeug.disabled = True
+    app.logger.disabled = True
 
-if __name__ != '__main__':  # logs to console in production environment
-    @app.before_request
-    def log():
-        logger.info('{} {}'.format(request.method, request.full_path))
+    @app.after_request
+    def log(response):
+        logger.info(f'{request.method} {request.full_path} {response.status_code}')
+        return response
 
-if __name__ != '__main__':
-    logger.info('Prefetching...')
+    CORS(api_v1_blueprint, methods=['GET'])
+    CORS(api_v2_blueprint, methods=['GET'])
 
-    status = prefetch(redis=redis.redis_store)
-    if status[0] is None and status[1] is None:
-        logger.info('Prefetch: nothing to do')
-    if status[0] is not None:
-        logger.info(f'Prefetch: {status[0]} groups')
-    if status[1] is not None:
-        logger.info(f'Prefetch: {status[1]} departments')
+    # Set up pdf2json
+    if 'PDF2JSON_API_URL' in app.config:
+        schedule.init_app(app)
+    else:
+        raise ValueError('PDF2JSON_API_URL is not defined')
 
-if __name__ == '__main__':
-    PORT = getenv('PORT', '80')
-    app.run(port=PORT, debug=True)
+    # Set up Redis
+    if 'REDIS_URL' in app.config:
+        databases.redis.init_app(app)
+    else:
+        raise ValueError('REDIS_URL is not defined')
+
+    # Set up CLI commands
+    prefetch.init_app(app)
+
+    # Register blueprints
+    app.register_blueprint(api_v1_blueprint, url_prefix='/api/v1')
+    app.register_blueprint(api_v2_blueprint, url_prefix='/api/v2')
+    app.register_blueprint(checks_blueprint)
+
+    # Set up MongoDB
+    if 'MONGODB_URI' in app.config:
+        databases.mongo.init_app(app)
+
+        @app.after_request
+        def log(response):
+            databases.mongo.db.logs.insert_one({
+                'path': request.full_path,
+                'useragent': request.user_agent.string,
+                'date': datetime.now(),
+                'status': response.status_code
+            })
+
+    if app.env == 'production':
+        @app.before_first_request
+        def prefetch_data():
+            logger.info('Fetching data...')
+
+            status = prefetch.prefetch()
+            if status[0] is None and status[1] is None:
+                logger.info('Prefetch: nothing to do')
+            if status[0] is not None:
+                logger.info(f'Prefetch: {status[0]} groups')
+            if status[1] is not None:
+                logger.info(f'Prefetch: {status[1]} departments')
+
+    return app

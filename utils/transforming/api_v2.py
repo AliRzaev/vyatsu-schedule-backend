@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import List, Dict, Iterable, Tuple
 
-from utils.groups_info import GroupInfo, DepartmentInfo
+from utils.extractors import GroupInfo, DepartmentInfo
 
 
 @lru_cache()

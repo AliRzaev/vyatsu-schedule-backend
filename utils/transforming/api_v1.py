@@ -2,7 +2,7 @@ from collections import defaultdict
 from functools import lru_cache
 from typing import Tuple
 
-from utils.groups_info import GroupInfo
+from utils.extractors import GroupInfo
 
 
 @lru_cache()

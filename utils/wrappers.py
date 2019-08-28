@@ -1,7 +1,8 @@
 from functools import wraps
 from json import dumps
 
-from flask import Response
+from flask import Response, has_app_context
+from loguru import logger
 
 from utils.date import as_rfc2822
 
@@ -32,6 +33,10 @@ class on_exception:
             try:
                 return route(*args, **kwargs)
             except Exception as ex:
+                if has_app_context():
+                    logger.exception(
+                        'An exception occurred during request handling'
+                    )
                 response = dumps({
                     'error': str(ex)[:40]
                 })
@@ -42,24 +47,6 @@ class on_exception:
                 )
 
         return wrapper_fun
-
-
-def no_cache(route):
-    """
-    Turn off caching for the responses of the given route.
-    """
-    @wraps(route)
-    def wrapper_fun(*args, **kwargs):
-        route_res = route(*args, **kwargs)
-
-        if isinstance(route_res, Response):
-            route_res.headers.set('Cache-Control',
-                                  'no-cache, no-store, must-revalidate')
-            return route_res
-        else:
-            raise TypeError('Route must return a Response object')
-
-    return wrapper_fun
 
 
 def immutable(route):

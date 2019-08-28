@@ -1,16 +1,20 @@
 from functools import lru_cache
-from os import getenv
 
 import requests
 import xlrd
 
 from utils.extractors import DateRange
 
-_PDF2JSON_API_URL = getenv('PDF2JSON_API_URL')
+_PDF2JSON_API_URL = None
 
 _GROUP_URL_TEMPLATE = 'https://www.vyatsu.ru/reports/schedule/Group/{}_{}_{}_{}.pdf'
 
 _DEPARTMENT_URL_TEMPLATE = 'https://www.vyatsu.ru/reports/schedule/prepod/{}_{}_{}_{}.xls'
+
+
+def init_app(app):
+    global _PDF2JSON_API_URL
+    _PDF2JSON_API_URL = app.config['PDF2JSON_API_URL']
 
 
 class ParseException(Exception):
@@ -19,6 +23,9 @@ class ParseException(Exception):
 
 @lru_cache(maxsize=512)
 def fetch_group_schedule(group_id: str, season_key: str, range_: DateRange):
+    if _PDF2JSON_API_URL is None:
+        raise ValueError('PDF2JSON_API_URL is not defined')
+
     api_url = _PDF2JSON_API_URL + '/api/v2/convert'
     pdf_url = _GROUP_URL_TEMPLATE.format(group_id, season_key,
                                          range_[0], range_[1])

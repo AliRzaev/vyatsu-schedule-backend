@@ -26,7 +26,7 @@ def get_date_indexes(first_date: str, today: date = None) -> Tuple[int, int]:
     """
     Compute week and day indexes of the given day from the first day
     of the date range of schedule. If the given day is Sunday, function returns
-    indexes for a next day.
+    indexes for a next day by modulo 14.
 
     :param first_date: the beginning of the date range
     :param today: the day the indexes will be computed for
@@ -85,17 +85,6 @@ def get_date_by_indexes(first_date: str, week_index: int, day_index) -> str:
     begin += delta
 
     return '{d:02}{m:02}{y:04}'.format(d=begin.day, m=begin.month, y=begin.year)
-
-
-def get_date_of_weekday(weekday: int, today: date = None) -> date:
-    """
-    Get the nearest (may be today) date of the given weekday (0..6).
-    """
-    if today is None:
-        today = get_moscow_today()
-
-    offset = (7 + weekday - today.weekday()) % 7
-    return today + timedelta(days=offset)
 
 
 def get_moscow_today() -> date:

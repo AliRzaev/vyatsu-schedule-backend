@@ -9,10 +9,12 @@
 
 ### Необходимые переменные окружения
 
+`FLASK_ENV` - среда запуска: `development`, `testing` и `production`. По 
+умолчанию `development`.
+
+#### Production-only
 `REDIS_URL` - URL базы данных Redis в формате 
 `redis://<user>:<password>@<host>:<port>/<database>`.
-
-`PORT` - порт, который сервер будет слушать, по умолчанию `80`.
 
 `PDF2JSON_API_URL` - URL [pdf2json-конвертера](https://github.com/alirzaev/vyatsu-schedule-pdf2json).
 
@@ -20,28 +22,56 @@
 
 `MONGODB_URI` - URI базы данных MongoDB в формате 
 `mongodb://<user>:<password>@<host>:<port>/<database>`. 
-Поле `<database>` обязательно. Используется для ведения логов.
+Поле `<database>` обязательно.
+
+Используется для ведения логов. В журнал записываются только запросы к API. 
+Коллекция: `logs`.
+
+<details>
+<summary>Формат записи</summary>
+
+```json
+{
+    "path": "<full URL path, string>",
+    "useragent": "<user agent, string>",
+    "date": "<timestamp of request, date>",
+    "status": "<response status code, number>"
+}
+```
+</details>
 
 ### Тесты
 
 #### Модульные тесты
 
-`python -m unittest discover -s tests`
+`python -m pytest --pyargs tests.unit`
 
 #### Интеграционные тесты
 
-**Внимание:** переменные `MONGODB_URI` и `REDIS_URL` должны быть определны.
+Конфигурация приложения для тестирования: [config.py](config.py)
 
 **Осторожно!** Во время выполнения некоторых тестов данные в БД могут быть 
 **безвозвратно** утеряны. 
 Перед запуском тестов удостоверьтесь, что используете тестовую базу данных, а не 
 основную.
 
-`python -m unittest discover -s tests -p it*.py`
+`python -m pytest --pyargs tests.integration`
 
-### Запуск
+### Запуск 
 
-`gunicorn -b 0.0.0.0:$PORT server:app`
+#### gunicorn
+
+```shell script
+export FLASK_ENV=<ENV>
+gunicorn -b 0.0.0.0:<PORT> wsgi:app
+```
+
+#### development server (werkzeug)
+
+```shell script
+export FLASK_ENV=<ENV>
+flask run
+```
 
 ### Администрирование
 
@@ -50,10 +80,15 @@
 один раз в две недели обновлять информацию с сайта ВятГУ. Для этого нужно запустить 
 следующий скрипт:
 
-`python -m utils.prefetch -f`
+```shell script
+export FLASK_ENV=<ENV>
+export REDIS_URL=<REDIS_URL>
+export PDF2JSON_API_URL=<PDF2JSON_API_URL>
+flask prefetch --force
+```
 
 Чтобы загрузить информацию только в том случае, если ее нет в БД, то 
-запустите скрипт без ключа `-f`.
+запустите скрипт без ключа `--force`.
 
 ### Docker
 
@@ -67,6 +102,7 @@
    
    ```
    docker run --name somename -d -p 8080:80 \
+     -e FLASK_ENV=<ENV> \
      -e MONGODB_URI=<URI> \
      -e REDIS_URL=<URL> \
      -e PDF2JSON_API_URL=<PDF2JSON_API_URL> \
