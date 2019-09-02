@@ -51,7 +51,7 @@ def create_app(config_obj):
     app.register_blueprint(checks_blueprint)
 
     # Set up MongoDB
-    if 'MONGODB_URI' in app.config:
+    if 'MONGO_URI' in app.config:
         databases.mongo.init_app(app)
 
         @app.after_request
@@ -62,6 +62,8 @@ def create_app(config_obj):
                 'date': datetime.now(),
                 'status': response.status_code
             })
+
+            return response
 
     if app.env == 'production':
         @app.before_first_request
