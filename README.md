@@ -1,7 +1,5 @@
 # Backend-сервер для VyatSU schedule
 
-[![Build Status](https://travis-ci.org/alirzaev/vyatsu-schedule-backend.svg?branch=master)](https://travis-ci.org/alirzaev/vyatsu-schedule-backend)
-
 Данный сервер предоставляет REST API для расписания занятий студентов 
 [Вятского государственного университета](https://www.vyatsu.ru).
 
